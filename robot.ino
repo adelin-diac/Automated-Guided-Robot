@@ -56,7 +56,7 @@ void loop() {
   sensorVals[3] = analogRead(sensor4);
   sensorVals[4] = analogRead(sensor5);
 
-//  if(sensorVals[0] < 750 && sensorVals[4] < 750){ // Call API here
+//  if(sensorVals[0] < 750 && sensorVals[4] < 750){ // Call API
 //    Serial.println("stop");
 //    stopRobot();
 //  }
