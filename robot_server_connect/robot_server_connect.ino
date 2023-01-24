@@ -1,48 +1,32 @@
 
-/*
-  Web client
-
- This sketch connects to a website (http://www.google.com)
- using a WiFi shield.
-
- This example is written for a network using WPA encryption. For
- WEP or WPA, change the Wifi.begin() call accordingly.
-
- This example is written for a network using WPA encryption. For
- WEP or WPA, change the Wifi.begin() call accordingly.
-
- Circuit:
- * WiFi shield attached
-
- created 13 July 2010
- by dlf (Metodo2 srl)
- modified 31 May 2012
- by Tom Igoe
- */
-
-
 #ifndef __CC3200R1M1RGC__
 // Do not include SPI for CC3200 LaunchPad
 #include <SPI.h>
 #endif
-#include <WiFi.h>
 
-int nextPosition = 0;
+#include <WiFi.h>
+#define BUFSIZE 512
 
 // your network name also called SSID
 char ssid[] = "NETGEAR63";
 // your network password
 char password[] = "littlecello367";
 
-// if you don't want to use DNS (and reduce your sketch size)
-// use the numeric IP instead of the name for the server:
-//IPAddress server("54.78.246.30");  // numeric IP for Google (no DNS)
-char server[] = "54.78.246.30";    // name address for Google (using DNS)
+//IPAddress server("54.78.246.30");  
+char server[] = "54.78.246.30";    
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server
 // that you want to connect to (port 80 is default for HTTP):
 WiFiClient client;
+
+String readResponse();
+String getResponseBody(String& response);
+int getStatusCode(String& response);
+
+int currentPosition = 0;
+int nextPosition;
+bool stopConnection = false;
 
 void setup() {
   //Initialize serial and wait for port to open:
@@ -76,7 +60,7 @@ void setup() {
 }
 
 void loop() {
-//  while(nextPosition < 6){
+//  while(nextPosition < 7){
     Serial.println("\nStarting connection to server...");
   // if you get a connection, report back via serial:
   if (client.connect(server, 8081)) {
@@ -86,31 +70,52 @@ void loop() {
     client.println("Content-Type: application/x-www-form-urlencoded");
     client.println("Content-Length: 10");
     client.println();
-    client.println("position= " + String(nextPosition));
-    client.println("Host: 54.78.246.30");
-    client.println("Connection: close");
+    client.println("position=" + String(currentPosition));
     client.println();
-    nextPosition++;
+    
+    String res = readResponse();
+    
+
+      if(getStatusCode(res) == 200){
+        String body = getResponseBody(res);
+        
+        if(body == "undefined"){
+            stopConnection = true;
+        }
+        
+        nextPosition = body.toInt();
+      // Send nextPosition to the other MSP
+      // Other MSP makes robot go to next position
+      // Once there, send a response to this MSP with the current position
+        
+       currentPosition = nextPosition;  // This will be done by communicating to other MSP
+      }
+      
+      Serial.print("Next Position = ");
+      Serial.println(String(nextPosition));
+      Serial.println(res);
+//      Serial.println(body);
+//      Serial.println(nextPosition);
     delay(1000);
-//    client.flush();
+//    } 
   }
-//  }
   
   // if there are incoming bytes available
   // from the server, read them and print them:
-  while (client.available()) {
-    char c = client.read();
-    Serial.write(c);
-  }
+//  while (client.available()) {
+//    char c = client.read();
+//    Serial.write(c);
+//  }
 
+  client.stop();
   // if the server's disconnected, stop the client:
   if (!client.connected()) {
     Serial.println();
     Serial.println("disconnecting from server.");
-    client.stop();
+    
 
     // do nothing forevermore:
-    while (true);
+    while (stopConnection);
   }
 }
 
@@ -130,4 +135,26 @@ void printWifiStatus() {
   Serial.print("signal strength (RSSI):");
   Serial.print(rssi);
   Serial.println(" dBm");
+}
+
+// Read Response from Server
+String readResponse(){
+    char buffer[BUFSIZE];
+    memset(buffer,0,BUFSIZE);
+    client.readBytes(buffer,BUFSIZE);
+    String response(buffer);
+    return response;
+}
+
+// Get next position from server
+String getResponseBody(String& response){
+    int split = response.indexOf("\r\n\r\n");
+    String body = response.substring(split+4, response.length());
+    body.trim();
+    return body;
+}
+
+int getStatusCode(String& response){
+  String code = response.substring(9,12);
+  return code.toInt();
 }
