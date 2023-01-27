@@ -51,7 +51,7 @@ int nextPosition;
 bool stopConnection = false;
 String serverResponse;
 
-//int sensorVals[5];
+byte sensorCombined;
 byte sensorVals[5];
 const int maxSensorVal = 600; // Value for breakpoint of wether sensor is activated
 
@@ -62,6 +62,7 @@ bool moveRobot = true;
 void moveForward(int msDelay = 0, bool slowly = false);
 void moveBackward(int msDelay);
 void stopRobot();
+
   // INTERNET STUFF
 String readResponse();
 String getResponseBody(String& response);
@@ -108,25 +109,7 @@ void setup() {
   pinMode(leftPin1, OUTPUT);
   pinMode(leftPin2, OUTPUT);
 
-//  // at start take a reading from the sensors to figure out what is white and what is black
-//  sensorVals[0] = analogRead(sensor1); //left left
-//  sensorVals[1] = analogRead(sensor2); //left
-//  sensorVals[2] = analogRead(sensor3); //middle
-//  sensorVals[3] = analogRead(sensor4); //right
-//  sensorVals[4] = analogRead(sensor5); //right right
 }
-byte sensorCombined;
-
-// cases: 
-// 01111 = 15
-// 00111 = 7
-// 10011 = 19
-// 10111 = 23
-
-// 11110 = 30
-// 11100 = 28
-// 11001 = 25
-// 11101 = 29
 
 void loop() {
   sensorCombined = 0;
