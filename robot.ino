@@ -68,34 +68,35 @@ String readResponse();
 String getResponseBody(String& response);
 int getStatusCode(String& response);
 String fetchNextPosition(int currentPos);
+void sendAndReceiveServerResponse();
 
 void setup() {
     //Initialize serial and wait for port to open:
   Serial.begin(9600);
 
-//  // attempt to connect to Wifi network:
-//  Serial.print("Attempting to connect to Network named: ");
-//  // print the network name (SSID);
-//  Serial.println(ssid); 
-//  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-//  WiFi.begin(ssid, password);
-//  while ( WiFi.status() != WL_CONNECTED) {
-//    // print dots while we wait to connect
-//    Serial.print(".");
-//    delay(300);
-// }
-//  
-//  Serial.println("\nYou're connected to the network");
-//  Serial.println("Waiting for an ip address");
-//  
-//  while (WiFi.localIP() == INADDR_NONE) {
-//    // print dots while we wait for an ip addresss
-//    Serial.print(".");
-//    delay(300);
-//  }
-//
-//  Serial.println("\nIP Address obtained");
-//  printWifiStatus();
+  // attempt to connect to Wifi network:
+  Serial.print("Attempting to connect to Network named: ");
+  // print the network name (SSID);
+  Serial.println(ssid); 
+  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+  WiFi.begin(ssid, password);
+  while ( WiFi.status() != WL_CONNECTED) {
+    // print dots while we wait to connect
+    Serial.print(".");
+    delay(300);
+ }
+  
+  Serial.println("\nYou're connected to the network");
+  Serial.println("Waiting for an ip address");
+  
+  while (WiFi.localIP() == INADDR_NONE) {
+    // print dots while we wait for an ip addresss
+    Serial.print(".");
+    delay(300);
+  }
+
+  Serial.println("\nIP Address obtained");
+  printWifiStatus();
 
   pinMode(sensor1, INPUT);
   pinMode(sensor2, INPUT);
@@ -155,146 +156,70 @@ void loop() {
     case(27): // 11011 = 27
       moveForward();
       break;
+    case(0):
+      sendAndReceiveServerResponse();
+      break;
     default:
       moveForward(0, true);
       break;
   }
-//  for(int i=0; i<5; i++){
-//    Serial.print(sensorVals[i]);
-//    Serial.println("\t");
-//    
-//  }
-//  delay(1000);
-//  if(sensorVals[0] < 750 && sensorVals[4] < 750){ // Call API
-//    Serial.println("stop");
-//    stopRobot();
-//  }
-
-//  if(sensorVals[1] < 500 && sensorVals[2] < 500 && sensorVals[3] < 500 || sensorVals[0] < 500 && sensorVals[1] < 500 && sensorVals[2] < 500 || sensorVals[2] < 500 && sensorVals[3] < 500 && sensorVals[4] < 500){
-
-  // NEED TO FIX TURNING SPEEDS ETC
-  
-  // At junction -> make request if at checkpoint (1)
-//  if((sensorVals[1] < maxSensorVal && sensorVals[2] < maxSensorVal && sensorVals[3] < maxSensorVal && sensorVals[0] < maxSensorVal && sensorVals[4] < maxSensorVal)){
-//      //check if at checkpoint or just intersection - djisktra algorithm
-//      stopRobot();
-////      moveForward(0, true);
-//
-//      serverResponse = fetchNextPosition(currentPosition);
-//
-//      if(!stopConnection){
-//        nextPosition = serverResponse.toInt();
-//      }
-//          
-//      // compare current position & next position to see route to go on then
-//      // set currentPosition
-//      delay(1000); // THIS MIMICKS THE MOVEMEMNT OF ROBOT TO NEXT POSITION
-//      Serial.print("Next Position = ");
-//      Serial.println(String(nextPosition));
-//         
-//      currentPosition = nextPosition; // ARrival at next position
-//      moveForward(0, false);
-//      // If disconnected from server & stopconnection is true -> stop forever at intersection
-//      if (!client.connected()) {   
-//      // do nothing forevermore:
-//        while (stopConnection){
-//          stopRobot(); // bring close to wall
-//          Serial.println("I have completed my objective");
-//          delay(800);
-//      } 
-//    }
-//    return;
-//  } 
-
-  // MOVE FORWARD WHILE MIDDLE ACTIVE AND SENSORS BESIDE NOT ACTIVE (2)
-//  if(sensorVals[2] < maxSensorVal && sensorVals[1] > maxSensorVal && sensorVals[3] > maxSensorVal ){
-//    moveForward(0, false);
-//    return;
-//  }
-
-  // MOVE BACK IF GOING OFF TRACK (3)
-//  if(sensorVals[2] > maxSensorVal && sensorVals[1] > maxSensorVal && sensorVals[3] > maxSensorVal&& sensorVals[0] > maxSensorVal && sensorVals[4] > maxSensorVal){
-//    stopRobot();
-//    moveBackward(0);
-//    return;
-//  }
-//
-//  // Fast ish right turn
-//  if(sensorVals[0] < 500 && sensorVals[1] < maxSensorVal && sensorVals[4] > maxSensorVal){
-//    analogWrite(rightPin1, 255);
-//      analogWrite(rightPin2, 0);
-//    
-//      analogWrite(leftPin1, 0);
-//      analogWrite(leftPin2, 0);
-//      return;
-//  }
-//
-//  // Fast ish left turn
-//  if(sensorVals[4] < 500 && sensorVals[2] < maxSensorVal && sensorVals[0] > maxSensorVal){
-//    analogWrite(leftPin1, 255);
-//    analogWrite(leftPin2, 0);
-//    
-//    analogWrite(rightPin1, 0);
-//    analogWrite(rightPin2, 0);
-//    return;
-//  }
-//  
-//  // TURN RIGHT HERE - SLOW TURN
-//  if(sensorVals[1] < maxSensorVal){
-//      analogWrite(rightPin1, 255);
-//      analogWrite(rightPin2, 0);
-//    
-//      analogWrite(leftPin1, 50);
-//      analogWrite(leftPin2, 0);
-//    return;
-//  }
-//  
-//  // TURN LEFT HERE - SLOW TURN
-//if(sensorVals[3] < maxSensorVal){
-//    analogWrite(leftPin1, 255);
-//    analogWrite(leftPin2, 0);
-//    
-//    analogWrite(rightPin1, 50);
-//    analogWrite(rightPin2, 0);
-//    return;
-//  }
-//
-//  
-//  // TURN LEFT QUICKLY
-//  if(sensorVals[0] < 500 && sensorVals[4] > maxSensorVal){ 
-//    analogWrite(leftPin1, 0);
-//    analogWrite(leftPin2, 1);
-//    
-//    analogWrite(rightPin1, 255);
-//    analogWrite(rightPin2, 0); 
-//    return;
-//  }
-//  // TURN RIGHT QUICKLY
-//  if(sensorVals[4] < 500 && sensorVals[0] > maxSensorVal){ 
-//    analogWrite(rightPin1, 0);
-//    analogWrite(rightPin2, 1); 
-//    
-//    analogWrite(leftPin1, 255);
-//    analogWrite(leftPin2, 0);
-//    return;
-//  }
-}
+  } 
 
 void turnLeft(){
   analogWrite(leftPin1, 0);
-  analogWrite(leftPin2, 50);
+  analogWrite(leftPin2, 60);
   
   analogWrite(rightPin1, 255);
   analogWrite(rightPin2, 0);
 }
 void turnRight(){
   analogWrite(rightPin1, 0);
-  analogWrite(rightPin2, 50);
+  analogWrite(rightPin2, 60);
   
   analogWrite(leftPin1, 255);
   analogWrite(leftPin2, 0);
 }
 
+void rotateRobotRight(){
+  // Right Wheel
+  analogWrite(rightPin1, 0);
+  analogWrite(rightPin2, 155);
+
+  // Left Wheel
+  analogWrite(leftPin1, 155);
+  analogWrite(leftPin2, 0);
+  bool keepTurning = true;
+
+  while(keepTurning){
+    sensorCombined = 0;
+  
+    sensorVals[0] = digitalRead(sensor1); //left left
+    sensorVals[1] = digitalRead(sensor2); //left
+    sensorVals[2] = digitalRead(sensor3); //middle
+    sensorVals[3] = digitalRead(sensor4); //right
+    sensorVals[4] = digitalRead(sensor5); //right right
+    
+    for(int i=0; i<5; i++){
+     sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
+    }
+    switch(sensorCombined){
+      case(19):
+        moveForward(0, true);
+        return;
+      case(27):
+        moveForward(0, true);
+        return;
+      case(25):
+        moveForward(0, true);
+        return;
+      default:
+        keepTurning = true;
+        break;
+    }
+  }
+  
+  
+}
 void moveForward(int msDelay, bool slowly){
 //  Serial.println("Moving Forward");
   if(slowly){
@@ -302,7 +227,7 @@ void moveForward(int msDelay, bool slowly){
     analogWrite(rightPin2, 0);
 
     // Left Wheel
-    analogWrite(leftPin1, 110);
+    analogWrite(leftPin1, 120);
     analogWrite(leftPin2, 0);
     return;
   }
@@ -329,6 +254,16 @@ void moveBackward(int msDelay){
 }
 
 void stopRobot(){
+  // Right Wheel
+  analogWrite(rightPin1, 0);
+  analogWrite(rightPin2, RIGHT_WHEEL_SPEED_MAX);
+
+  // Left Wheel
+  analogWrite(leftPin1, 0);
+  analogWrite(leftPin2, LEFT_WHEEL_SPEED_MAX);
+
+  delay(100);
+  
   // Right Wheel
   analogWrite(rightPin1, 0);
   analogWrite(rightPin2, 0);
@@ -408,4 +343,30 @@ String fetchNextPosition(int currentPos){
   client.stop();
   return "err";
   }
+}
+void sendAndReceiveServerResponse(){
+      stopRobot();
+      serverResponse = fetchNextPosition(currentPosition);
+
+      if(!stopConnection){
+        nextPosition = serverResponse.toInt();
+      }
+          
+      // compare current position & next position to see route to go on then
+      // set currentPosition
+//      delay(1000); // THIS MIMICKS THE MOVEMEMNT OF ROBOT TO NEXT POSITION
+//      Serial.print("Next Position = ");
+//      Serial.println(String(nextPosition));
+         
+      currentPosition = nextPosition; // ARrival at next position
+      
+      // If disconnected from server & stopconnection is true -> stop forever at intersection
+      if (!client.connected()) {   
+      // do nothing forevermore:
+        while (stopConnection){
+          Serial.println("I have completed my objective");
+          delay(800);
+      } 
+    }
+    moveForward(0, false);
 }
