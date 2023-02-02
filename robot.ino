@@ -47,6 +47,7 @@ WiFiClient client;
 
 int currentPosition = 0;
 int nextPosition;
+bool clockwise = false;
 
 bool stopConnection = false;
 String serverResponse;
@@ -71,32 +72,32 @@ String fetchNextPosition(int currentPos);
 void sendAndReceiveServerResponse();
 
 void setup() {
-    //Initialize serial and wait for port to open:
-  Serial.begin(9600);
-
-  // attempt to connect to Wifi network:
-  Serial.print("Attempting to connect to Network named: ");
-  // print the network name (SSID);
-  Serial.println(ssid); 
-  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-  WiFi.begin(ssid, password);
-  while ( WiFi.status() != WL_CONNECTED) {
-    // print dots while we wait to connect
-    Serial.print(".");
-    delay(300);
- }
-  
-  Serial.println("\nYou're connected to the network");
-  Serial.println("Waiting for an ip address");
-  
-  while (WiFi.localIP() == INADDR_NONE) {
-    // print dots while we wait for an ip addresss
-    Serial.print(".");
-    delay(300);
-  }
-
-  Serial.println("\nIP Address obtained");
-  printWifiStatus();
+//    //Initialize serial and wait for port to open:
+//  Serial.begin(9600);
+//
+//  // attempt to connect to Wifi network:
+//  Serial.print("Attempting to connect to Network named: ");
+//  // print the network name (SSID);
+//  Serial.println(ssid); 
+//  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+//  WiFi.begin(ssid, password);
+//  while ( WiFi.status() != WL_CONNECTED) {
+//    // print dots while we wait to connect
+//    Serial.print(".");
+//    delay(300);
+// }
+//  
+//  Serial.println("\nYou're connected to the network");
+//  Serial.println("Waiting for an ip address");
+//  
+//  while (WiFi.localIP() == INADDR_NONE) {
+//    // print dots while we wait for an ip addresss
+//    Serial.print(".");
+//    delay(300);
+//  }
+//
+//  Serial.println("\nIP Address obtained");
+//  printWifiStatus();
 
   pinMode(sensor1, INPUT);
   pinMode(sensor2, INPUT);
@@ -156,9 +157,20 @@ void loop() {
     case(27): // 11011 = 27
       moveForward();
       break;
+    ///////////////////////////
     case(0):
-      sendAndReceiveServerResponse();
+      turnAround();
+//      sendAndReceiveServerResponse();
       break;
+    case(16): //10000
+      turnAround();
+//      sendAndReceiveServerResponse();
+      break;
+    case(1): //00001
+      turnAround();
+//      sendAndReceiveServerResponse();
+      break;
+    ///////////////////////////
     default:
       moveForward(0, true);
       break;
@@ -189,6 +201,48 @@ void rotateRobotRight(){
   analogWrite(leftPin1, 155);
   analogWrite(leftPin2, 0);
   bool keepTurning = true;
+  delay(100);
+  
+  while(keepTurning){
+    sensorCombined = 0;
+  
+    sensorVals[0] = digitalRead(sensor1); //left left
+    sensorVals[1] = digitalRead(sensor2); //left
+    sensorVals[2] = digitalRead(sensor3); //middle
+    sensorVals[3] = digitalRead(sensor4); //right
+    sensorVals[4] = digitalRead(sensor5); //right right
+    
+    for(int i=0; i<5; i++){
+     sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
+    }
+    switch(sensorCombined){
+      case(19):
+        moveForward(0, true);
+        return;
+      case(27):
+        moveForward(0, true);
+        return;
+      case(25):
+        moveForward(0, true);
+        return;
+      default:
+        keepTurning = true;
+        break;
+    }
+  }
+  
+  
+}
+void rotateRobotLeft(){
+  // Right Wheel
+  analogWrite(rightPin1, 155);
+  analogWrite(rightPin2, 0);
+
+  // Left Wheel
+  analogWrite(leftPin1, 0);
+  analogWrite(leftPin2, 155);
+  bool keepTurning = true;
+  delay(100);
 
   while(keepTurning){
     sensorCombined = 0;
@@ -262,7 +316,7 @@ void stopRobot(){
   analogWrite(leftPin1, 0);
   analogWrite(leftPin2, LEFT_WHEEL_SPEED_MAX);
 
-  delay(100);
+  delay(30);
   
   // Right Wheel
   analogWrite(rightPin1, 0);
@@ -271,6 +325,66 @@ void stopRobot(){
   // Left Wheel
   analogWrite(leftPin1, 0);
   analogWrite(leftPin2, 0);
+}
+
+void turnAround(){
+  // Turn right when clockwise
+  if(clockwise){
+    // Right Wheel
+    analogWrite(rightPin1, 0);
+    analogWrite(rightPin2, 150);
+  
+    // Left Wheel
+    analogWrite(leftPin1, 170);
+    analogWrite(leftPin2, 0);
+  }
+  // Turn left when anticlockwise
+  else{
+    // Right Wheel
+    analogWrite(rightPin2, 0);
+    analogWrite(rightPin1, 150);
+  
+    // Left Wheel
+    analogWrite(leftPin2, 150);
+    analogWrite(leftPin1, 0);
+  }
+  bool keepTurning = true;
+  int numberOfDetections = 0;
+//  delay(80);
+
+  while(keepTurning){
+    delay(70);
+    sensorCombined = 0;
+   
+    sensorVals[0] = digitalRead(sensor1); //left left
+    sensorVals[1] = digitalRead(sensor2); //left
+    sensorVals[2] = digitalRead(sensor3); //middle
+    sensorVals[3] = digitalRead(sensor4); //right
+    sensorVals[4] = digitalRead(sensor5); //right right
+    
+    for(int i=0; i<5; i++){
+     sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
+    }
+    
+    switch(sensorCombined){
+      case(19):
+        numberOfDetections++;
+        break;
+      case(27):
+        numberOfDetections++;
+        break;
+      case(25):
+        numberOfDetections++;
+        break;
+      default:
+        keepTurning = true;
+        break;
+    }
+    
+    if(numberOfDetections > 1) keepTurning = false;
+  }
+    moveForward(0, true);
+    clockwise = !clockwise;
 }
 
 void printWifiStatus() {
@@ -352,13 +466,10 @@ void sendAndReceiveServerResponse(){
         nextPosition = serverResponse.toInt();
       }
           
-      // compare current position & next position to see route to go on then
-      // set currentPosition
-//      delay(1000); // THIS MIMICKS THE MOVEMEMNT OF ROBOT TO NEXT POSITION
-//      Serial.print("Next Position = ");
-//      Serial.println(String(nextPosition));
-         
-      currentPosition = nextPosition; // ARrival at next position
+      // Get path to next position
+
+//      if(nextPosition == 2) rotateRobotLeft();
+      currentPosition = nextPosition; // Arrival at next position
       
       // If disconnected from server & stopconnection is true -> stop forever at intersection
       if (!client.connected()) {   
@@ -368,5 +479,6 @@ void sendAndReceiveServerResponse(){
           delay(800);
       } 
     }
+    
     moveForward(0, false);
 }
