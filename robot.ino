@@ -332,17 +332,17 @@ void turnAround(){
   if(clockwise){
     // Right Wheel
     analogWrite(rightPin1, 0);
-    analogWrite(rightPin2, 150);
+    analogWrite(rightPin2, 200);
   
     // Left Wheel
-    analogWrite(leftPin1, 170);
+    analogWrite(leftPin1, 200);
     analogWrite(leftPin2, 0);
   }
   // Turn left when anticlockwise
   else{
     // Right Wheel
     analogWrite(rightPin2, 0);
-    analogWrite(rightPin1, 150);
+    analogWrite(rightPin1, 180);
   
     // Left Wheel
     analogWrite(leftPin2, 150);
@@ -353,7 +353,7 @@ void turnAround(){
 //  delay(80);
 
   while(keepTurning){
-    delay(70);
+    delay(80);
     sensorCombined = 0;
    
     sensorVals[0] = digitalRead(sensor1); //left left
