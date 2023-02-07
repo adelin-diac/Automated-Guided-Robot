@@ -47,7 +47,7 @@ WiFiClient client;
 
 int currentPosition = 0;
 int nextPosition = 0;
-bool clockwise = false;
+bool facingEast = true;
 
 bool stopConnection = false;
 String serverResponse;
@@ -64,6 +64,8 @@ void moveForward(int msDelay = 0, bool slowly = false);
 void moveBackward(int msDelay);
 void stopRobot();
 void moveRobotFromPos();
+//void turnAround(bool directionToTurnIsLeft);
+void turnAround();
 
   // INTERNET STUFF
 String readResponse();
@@ -155,15 +157,12 @@ void loop() {
       break;
     ///////////////////////////
     case(0): //00000
-//      turnAround();
       sendAndReceiveServerResponse();
       break;
     case(16): //10000
-//      turnAround();
       sendAndReceiveServerResponse();
       break;
     case(1): //00001
-//      turnAround();
       sendAndReceiveServerResponse();
       break;
     ///////////////////////////
@@ -324,18 +323,18 @@ void stopRobot(){
 }
 
 void turnAround(){
-  // Turn right when clockwise
-  if(clockwise){
-    // Right Wheel
-    analogWrite(rightPin1, 0);
-    analogWrite(rightPin2, 200);
-  
-    // Left Wheel
-    analogWrite(leftPin1, 200);
-    analogWrite(leftPin2, 0);
-  }
-  // Turn left when anticlockwise
-  else{
+  // Turn right
+//  if(!directionToTurnIsLeft){
+//    // Right Wheel
+//    analogWrite(rightPin1, 0);
+//    analogWrite(rightPin2, 200);
+//  
+//    // Left Wheel
+//    analogWrite(leftPin1, 200);
+//    analogWrite(leftPin2, 0);
+//  }
+//  // Turn left
+//  else{
     // Right Wheel
     analogWrite(rightPin2, 0);
     analogWrite(rightPin1, 200);
@@ -343,9 +342,8 @@ void turnAround(){
     // Left Wheel
     analogWrite(leftPin2, 200);
     analogWrite(leftPin1, 0);
-  }
+//  }
   delay(600);
-  clockwise = !clockwise;
 }
 
 void printWifiStatus() {
@@ -447,62 +445,129 @@ void routing(){
   //take the current position and the next position and tries to get the route for it.
   //start with the position 0 and the next position as 1.
   switch(nextPosition){
+    case(0):
+      switch(currentPosition){
+        case(1):
+          if(!facingEast){
+              turnAround();
+          }
+          moveRobotFromPos();
+          stopRobot();
+          rotateRobotRight();
+          facingEast = false;
+          break;
+        case(2):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          moveRobotFromPos();
+          facingEast = false;
+          break;
+        case(3):
+          
+          break;
+        case(4):
+          
+          break;
+        
+      }
+      currentPosition = 0;
+      break;
     // If next position is 1
     case(1):
       switch(currentPosition){
         case(0):
-        if(clockwise){
+        if(!facingEast){
           turnAround();
         }
           moveRobotFromPos();
           stopRobot();
           rotateRobotLeft();
-          currentPosition = 1;
-        break;
+          facingEast = false;
+          break;
         case(2):
-          if(!clockwise){
+          if(!facingEast){
              turnAround();
           }
           moveRobotFromPos();
           stopRobot();
           rotateRobotRight();
-          currentPosition = 1;
+          facingEast = false;
           break;
         case(3):
-          if(!clockwise){
+          if(!facingEast){
             turnAround();
           }
           moveRobotFromPos();
           moveRobotFromPos();
           stopRobot();
           rotateRobotRight();
-          currentPosition = 1;
+          facingEast = false;
           break;
+        case(4):
+          if(facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          stopRobot();
+          rotateRobotRight();
+          facingEast = true;
       }
+      currentPosition = 1;
       break;
       // If next position is 2
     case(2):
       switch(currentPosition){
-        
+        case(1):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          stopRobot();
+          rotateRobotLeft();
+          facingEast = false;
+        case(3):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
       }
+      currentPosition = 2;
       break;
       // If next position is 3
     case(3):
       switch(currentPosition){
-        
+        case(2):
+          if(facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          facingEast = false;
+          break;
       }
+      currentPosition = 3;
       break;
       // If next position is 4
     case(4):
       switch(currentPosition){
-        
+        case(3):
+          if(facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          moveRobotFromPos();
+          facingEast = true;
+          break;
       }
+      currentPosition = 4;
       break;
       // If next position is 5
     case(5):
       switch(currentPosition){
         // This will make it go to a certain point and then stop near wall
       }
+      currentPosition = 5;
       break;
   } 
 }
