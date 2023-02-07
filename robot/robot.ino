@@ -48,6 +48,7 @@ WiFiClient client;
 int currentPosition = 0;
 int nextPosition;
 bool clockwise = false;
+int junctionsRemainingToHit = 0;
 
 bool stopConnection = false;
 String serverResponse;
@@ -70,31 +71,32 @@ String getResponseBody(String& response);
 int getStatusCode(String& response);
 String fetchNextPosition(int currentPos);
 void sendAndReceiveServerResponse();
+void routing();
 
 void setup() {
 //    //Initialize serial and wait for port to open:
-//  Serial.begin(9600);
+     Serial.begin(9600);
 //
 //  // attempt to connect to Wifi network:
-//  Serial.print("Attempting to connect to Network named: ");
+    Serial.print("Attempting to connect to Network named: ");
 //  // print the network name (SSID);
 //  Serial.println(ssid); 
 //  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-//  WiFi.begin(ssid, password);
-//  while ( WiFi.status() != WL_CONNECTED) {
+    WiFi.begin(ssid, password);
+    while ( WiFi.status() != WL_CONNECTED) {
 //    // print dots while we wait to connect
-//    Serial.print(".");
-//    delay(300);
-// }
+       Serial.print(".");
+       delay(300);
+     }
 //  
 //  Serial.println("\nYou're connected to the network");
 //  Serial.println("Waiting for an ip address");
 //  
-//  while (WiFi.localIP() == INADDR_NONE) {
+     while (WiFi.localIP() == INADDR_NONE) {
 //    // print dots while we wait for an ip addresss
-//    Serial.print(".");
-//    delay(300);
-//  }
+     Serial.print(".");
+     delay(300);
+     }
 //
 //  Serial.println("\nIP Address obtained");
 //  printWifiStatus();
@@ -137,9 +139,6 @@ void loop() {
     case(23): // 10111 = 23
       turnLeft();
       break;
-//    case(19): // 10011 = 19
-//      turnLeft();
-//      break;
     //////////////////////
     case(30): // 11110 = 30
       turnRight();
@@ -150,25 +149,22 @@ void loop() {
     case(29): // 11101 = 29
       turnRight();
       break;
-//    case(25): // 11001 = 25
-//      turnRight();
-//      break;
     /////////////////////////
     case(27): // 11011 = 27
       moveForward();
       break;
     ///////////////////////////
     case(0): //00000
-      turnAround();
-//      sendAndReceiveServerResponse();
+//      turnAround();
+      sendAndReceiveServerResponse();
       break;
     case(16): //10000
-      turnAround();
-//      sendAndReceiveServerResponse();
+//      turnAround();
+      sendAndReceiveServerResponse();
       break;
     case(1): //00001
-      turnAround();
-//      sendAndReceiveServerResponse();
+//      turnAround();
+      sendAndReceiveServerResponse();
       break;
     ///////////////////////////
     default:
@@ -459,6 +455,9 @@ String fetchNextPosition(int currentPos){
   }
 }
 void sendAndReceiveServerResponse(){
+      // don't send server request if not at next position
+      if(currentPosition != nextPosition) {routing(); return;}
+      
       stopRobot();
       serverResponse = fetchNextPosition(currentPosition);
 
@@ -468,8 +467,7 @@ void sendAndReceiveServerResponse(){
           
       // Get path to next position
 
-//      if(nextPosition == 2) rotateRobotLeft();
-      currentPosition = nextPosition; // Arrival at next position
+//      currentPosition = nextPosition; // Arrival at next position
       
       // If disconnected from server & stopconnection is true -> stop forever at intersection
       if (!client.connected()) {   
@@ -481,4 +479,36 @@ void sendAndReceiveServerResponse(){
     }
     
     moveForward(0, false);
+}
+
+void routing(){
+  //take the current position and the next position and tries to get the route for it.
+  //start with the position 0 and the next position as 1.
+    stopRobot();
+    if(currentPosition == 0){
+      
+      switch(nextPosition){
+      case(1):
+        junctionsRemainingToHit=1;
+        moveForward();
+        if(junctionsRemainingToHit == 0){
+          stopRobot();
+          sendAndReceiveServerResponse();
+        }else{
+          turnLeft();
+          junctionsRemainingToHit--;
+        }
+        
+      break;
+      case(2):
+  
+      break;
+      case(3):
+  
+      break;
+    }
+  
+    }
+  }
+  
 }
