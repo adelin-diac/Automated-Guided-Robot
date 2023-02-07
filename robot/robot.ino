@@ -46,9 +46,8 @@ char server[] = "54.78.246.30";
 WiFiClient client;
 
 int currentPosition = 0;
-int nextPosition;
+int nextPosition = 0;
 bool clockwise = false;
-int junctionsRemainingToHit = 0;
 
 bool stopConnection = false;
 String serverResponse;
@@ -64,6 +63,7 @@ bool moveRobot = true;
 void moveForward(int msDelay = 0, bool slowly = false);
 void moveBackward(int msDelay);
 void stopRobot();
+void moveRobotFromPos();
 
   // INTERNET STUFF
 String readResponse();
@@ -74,32 +74,32 @@ void sendAndReceiveServerResponse();
 void routing();
 
 void setup() {
-//    //Initialize serial and wait for port to open:
+    //Initialize serial and wait for port to open:
      Serial.begin(9600);
-//
-//  // attempt to connect to Wifi network:
+
+  // attempt to connect to Wifi network:
     Serial.print("Attempting to connect to Network named: ");
-//  // print the network name (SSID);
-//  Serial.println(ssid); 
-//  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+  // print the network name (SSID);
+  Serial.println(ssid); 
+  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
     WiFi.begin(ssid, password);
     while ( WiFi.status() != WL_CONNECTED) {
-//    // print dots while we wait to connect
+    // print dots while we wait to connect
        Serial.print(".");
        delay(300);
      }
-//  
-//  Serial.println("\nYou're connected to the network");
-//  Serial.println("Waiting for an ip address");
-//  
+  
+  Serial.println("\nYou're connected to the network");
+  Serial.println("Waiting for an ip address");
+  
      while (WiFi.localIP() == INADDR_NONE) {
-//    // print dots while we wait for an ip addresss
+    // print dots while we wait for an ip addresss
      Serial.print(".");
      delay(300);
      }
-//
-//  Serial.println("\nIP Address obtained");
-//  printWifiStatus();
+
+  Serial.println("\nIP Address obtained");
+  printWifiStatus();
 
   pinMode(sensor1, INPUT);
   pinMode(sensor2, INPUT);
@@ -171,7 +171,7 @@ void loop() {
       moveForward(0, true);
       break;
   }
-  } 
+} 
 
 void turnLeft(){
   analogWrite(leftPin1, 0);
@@ -288,7 +288,7 @@ void moveForward(int msDelay, bool slowly){
   // Left Wheel
   analogWrite(leftPin1, LEFT_WHEEL_SPEED_MAX);
   analogWrite(leftPin2, 0);
-
+ delay(msDelay);
 }
 
 void moveBackward(int msDelay){
@@ -312,7 +312,7 @@ void stopRobot(){
   analogWrite(leftPin1, 0);
   analogWrite(leftPin2, LEFT_WHEEL_SPEED_MAX);
 
-  delay(30);
+  delay(20);
   
   // Right Wheel
   analogWrite(rightPin1, 0);
@@ -343,44 +343,9 @@ void turnAround(){
     // Left Wheel
     analogWrite(leftPin2, 200);
     analogWrite(leftPin1, 0);
-  }delay(600);
-//  bool keepTurning = true;
-//  int numberOfDetections = 0;
-////  delay(80);
-//
-//  while(keepTurning){
-//    delay(50);
-//    sensorCombined = 0;
-//   
-//    sensorVals[0] = digitalRead(sensor1); //left left
-//    sensorVals[1] = digitalRead(sensor2); //left
-//    sensorVals[2] = digitalRead(sensor3); //middle
-//    sensorVals[3] = digitalRead(sensor4); //right
-//    sensorVals[4] = digitalRead(sensor5); //right right
-//    
-//    for(int i=0; i<5; i++){
-//     sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
-//    }
-//    
-//    switch(sensorCombined){
-////      case(19):
-////        numberOfDetections++;
-////        break;
-//      case(27):
-//        numberOfDetections++;
-//        break;
-////      case(25):
-////        numberOfDetections++;
-////        break;
-//      default:
-//        keepTurning = true;
-//        break;
-//    }
-//    
-//    if(numberOfDetections > 1) keepTurning = false;
-//  }
-//    moveForward(0, true);
-    clockwise = !clockwise;
+  }
+  delay(600);
+  clockwise = !clockwise;
 }
 
 void printWifiStatus() {
@@ -466,8 +431,6 @@ void sendAndReceiveServerResponse(){
       }
           
       // Get path to next position
-
-//      currentPosition = nextPosition; // Arrival at next position
       
       // If disconnected from server & stopconnection is true -> stop forever at intersection
       if (!client.connected()) {   
@@ -477,37 +440,126 @@ void sendAndReceiveServerResponse(){
           delay(800);
       } 
     }
-    
-    moveForward(0, false);
+    routing();
 }
 
 void routing(){
   //take the current position and the next position and tries to get the route for it.
   //start with the position 0 and the next position as 1.
-    stopRobot();
-    if(currentPosition == 0){
-      
-      switch(nextPosition){
-      case(1):
-        junctionsRemainingToHit=1;
-        moveForward();
-        if(junctionsRemainingToHit == 0){
-          stopRobot();
-          sendAndReceiveServerResponse();
-        }else{
-          turnLeft();
-          junctionsRemainingToHit--;
+  switch(nextPosition){
+    // If next position is 1
+    case(1):
+      switch(currentPosition){
+        case(0):
+        if(clockwise){
+          turnAround();
         }
+          moveRobotFromPos();
+          stopRobot();
+          rotateRobotLeft();
+          currentPosition = 1;
+        break;
+        case(2):
+          if(!clockwise){
+             turnAround();
+          }
+          moveRobotFromPos();
+          stopRobot();
+          rotateRobotRight();
+          currentPosition = 1;
+          break;
+        case(3):
+          if(!clockwise){
+            turnAround();
+          }
+          moveRobotFromPos();
+          moveRobotFromPos();
+          stopRobot();
+          rotateRobotRight();
+          currentPosition = 1;
+          break;
+      }
+      break;
+      // If next position is 2
+    case(2):
+      switch(currentPosition){
         
+      }
       break;
-      case(2):
+      // If next position is 3
+    case(3):
+      switch(currentPosition){
+        
+      }
+      break;
+      // If next position is 4
+    case(4):
+      switch(currentPosition){
+        
+      }
+      break;
+      // If next position is 5
+    case(5):
+      switch(currentPosition){
+        // This will make it go to a certain point and then stop near wall
+      }
+      break;
+  } 
+}
+
+void moveRobotFromPos(){
+  bool moveIt = true;
+  while(moveIt){
+    sensorCombined = 0;
   
-      break;
-      case(3):
-  
-      break;
+    sensorVals[0] = digitalRead(sensor1); //left left
+    sensorVals[1] = digitalRead(sensor2); //left
+    sensorVals[2] = digitalRead(sensor3); //middle
+    sensorVals[3] = digitalRead(sensor4); //right
+    sensorVals[4] = digitalRead(sensor5); //right right
+    
+    for(int i=0; i<5; i++){
+     sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
     }
   
+    switch(sensorCombined){
+      case(15): // 01111 = 15
+        turnLeft();
+        break;
+      case(7): // 00111 = 7
+        turnLeft();
+        break;
+      case(23): // 10111 = 23
+        turnLeft();
+        break;
+      //////////////////////
+      case(30): // 11110 = 30
+        turnRight();
+        break;
+      case(28): // 11100 = 28
+        turnRight();
+        break;
+      case(29): // 11101 = 29
+        turnRight();
+        break;
+      /////////////////////////
+      case(27): // 11011 = 27
+        moveForward();
+        break;
+      ///////////////////////////
+      case(0): //00000
+        moveIt = false;
+        break;
+      case(16): //10000
+        moveIt = false;
+        break;
+      case(1): //00001
+        moveIt = false;
+        break;
+      ///////////////////////////
+      default:
+        moveForward(0, true);
+        break;
     }
   }
   
