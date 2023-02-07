@@ -158,7 +158,7 @@ void loop() {
       moveForward();
       break;
     ///////////////////////////
-    case(0):
+    case(0): //00000
       turnAround();
 //      sendAndReceiveServerResponse();
       break;
@@ -342,48 +342,48 @@ void turnAround(){
   else{
     // Right Wheel
     analogWrite(rightPin2, 0);
-    analogWrite(rightPin1, 180);
+    analogWrite(rightPin1, 200);
   
     // Left Wheel
-    analogWrite(leftPin2, 150);
+    analogWrite(leftPin2, 200);
     analogWrite(leftPin1, 0);
-  }
-  bool keepTurning = true;
-  int numberOfDetections = 0;
-//  delay(80);
-
-  while(keepTurning){
-    delay(80);
-    sensorCombined = 0;
-   
-    sensorVals[0] = digitalRead(sensor1); //left left
-    sensorVals[1] = digitalRead(sensor2); //left
-    sensorVals[2] = digitalRead(sensor3); //middle
-    sensorVals[3] = digitalRead(sensor4); //right
-    sensorVals[4] = digitalRead(sensor5); //right right
-    
-    for(int i=0; i<5; i++){
-     sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
-    }
-    
-    switch(sensorCombined){
-      case(19):
-        numberOfDetections++;
-        break;
-      case(27):
-        numberOfDetections++;
-        break;
-      case(25):
-        numberOfDetections++;
-        break;
-      default:
-        keepTurning = true;
-        break;
-    }
-    
-    if(numberOfDetections > 1) keepTurning = false;
-  }
-    moveForward(0, true);
+  }delay(600);
+//  bool keepTurning = true;
+//  int numberOfDetections = 0;
+////  delay(80);
+//
+//  while(keepTurning){
+//    delay(50);
+//    sensorCombined = 0;
+//   
+//    sensorVals[0] = digitalRead(sensor1); //left left
+//    sensorVals[1] = digitalRead(sensor2); //left
+//    sensorVals[2] = digitalRead(sensor3); //middle
+//    sensorVals[3] = digitalRead(sensor4); //right
+//    sensorVals[4] = digitalRead(sensor5); //right right
+//    
+//    for(int i=0; i<5; i++){
+//     sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
+//    }
+//    
+//    switch(sensorCombined){
+////      case(19):
+////        numberOfDetections++;
+////        break;
+//      case(27):
+//        numberOfDetections++;
+//        break;
+////      case(25):
+////        numberOfDetections++;
+////        break;
+//      default:
+//        keepTurning = true;
+//        break;
+//    }
+//    
+//    if(numberOfDetections > 1) keepTurning = false;
+//  }
+//    moveForward(0, true);
     clockwise = !clockwise;
 }
 
