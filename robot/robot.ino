@@ -190,10 +190,10 @@ void turnRight(){
 void rotateRobotRight(){
   // Right Wheel
   analogWrite(rightPin1, 0);
-  analogWrite(rightPin2, 155);
+  analogWrite(rightPin2, 150);
 
   // Left Wheel
-  analogWrite(leftPin1, 155);
+  analogWrite(leftPin1, 150);
   analogWrite(leftPin2, 0);
   bool keepTurning = true;
   delay(100);
@@ -230,12 +230,12 @@ void rotateRobotRight(){
 }
 void rotateRobotLeft(){
   // Right Wheel
-  analogWrite(rightPin1, 155);
+  analogWrite(rightPin1, 150);
   analogWrite(rightPin2, 0);
 
   // Left Wheel
   analogWrite(leftPin1, 0);
-  analogWrite(leftPin2, 155);
+  analogWrite(leftPin2, 150);
   bool keepTurning = true;
   delay(100);
 
@@ -455,6 +455,7 @@ void routing(){
           stopRobot();
           rotateRobotRight();
           facingEast = false;
+          currentPosition = 0;
           break;
         case(2):
           if(!facingEast){
@@ -463,6 +464,7 @@ void routing(){
           moveRobotFromPos();
           moveRobotFromPos();
           facingEast = false;
+          currentPosition = 0;
           break;
         case(3):
           if(!facingEast){
@@ -472,6 +474,7 @@ void routing(){
           moveRobotFromPos();
           moveRobotFromPos();
           facingEast= false;
+          currentPosition = 0;
           break;
         case(4):
           if(!facingEast){
@@ -479,9 +482,10 @@ void routing(){
           }
           moveRobotFromPos();
           facingEast = true;
+          currentPosition = 0;
           break;
       }
-      currentPosition = 0;
+      
       break;
     // If next position is 1
     case(1):
@@ -494,6 +498,7 @@ void routing(){
           stopRobot();
           rotateRobotLeft();
           facingEast = false;
+          currentPosition = 1;
           break;
         case(2):
           if(!facingEast){
@@ -503,6 +508,7 @@ void routing(){
           stopRobot();
           rotateRobotRight();
           facingEast = false;
+          currentPosition = 1;
           break;
         case(3):
           if(!facingEast){
@@ -513,6 +519,7 @@ void routing(){
           stopRobot();
           rotateRobotRight();
           facingEast = false;
+          currentPosition = 1;
           break;
         case(4):
           if(!facingEast){
@@ -523,8 +530,9 @@ void routing(){
           stopRobot();
           rotateRobotLeft();
           facingEast = false;
+          currentPosition = 1;
       }
-      currentPosition = 1;
+      
       break;
       // If next position is 2
     case(2):
