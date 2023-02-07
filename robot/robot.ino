@@ -465,12 +465,21 @@ void routing(){
           facingEast = false;
           break;
         case(3):
-          
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          moveRobotFromPos();
+          moveRobotFromPos();
+          facingEast= false;
           break;
         case(4):
-          
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          facingEast = true;
           break;
-        
       }
       currentPosition = 0;
       break;
@@ -506,13 +515,14 @@ void routing(){
           facingEast = false;
           break;
         case(4):
-          if(facingEast){
+          if(!facingEast){
             turnAround();
           }
           moveRobotFromPos();
+          moveRobotFromPos();
           stopRobot();
-          rotateRobotRight();
-          facingEast = true;
+          rotateRobotLeft();
+          facingEast = false;
       }
       currentPosition = 1;
       break;
@@ -527,17 +537,37 @@ void routing(){
           stopRobot();
           rotateRobotLeft();
           facingEast = false;
+          break;
         case(3):
           if(!facingEast){
             turnAround();
           }
           moveRobotFromPos();
+          facingEast = true;
+          break;
+        case(4):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          moveRobotFromPos();
+          moveRobotFromPos();
+          facingEast = false;
+        break;
       }
       currentPosition = 2;
       break;
       // If next position is 3
     case(3):
       switch(currentPosition){
+        case(1):
+          if(facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          rotateRobotRight();
+          facingEast = true;
+        break;
         case(2):
           if(facingEast){
             turnAround();
@@ -545,12 +575,38 @@ void routing(){
           moveRobotFromPos();
           facingEast = false;
           break;
+        case(4):
+          if(facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          moveRobotFromPos();
+          facingEast = true;
+        break;
       }
       currentPosition = 3;
       break;
       // If next position is 4
     case(4):
       switch(currentPosition){
+        case(1):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          rotateRobotRight();
+          moveRobotFromPos();
+          facingEast = false;
+        break;
+        case(2):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          moveRobotFromPos();
+          moveRobotFromPos();
+          facingEast = false;
+        break;
         case(3):
           if(facingEast){
             turnAround();
