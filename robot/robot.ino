@@ -66,6 +66,7 @@ void stopRobot();
 void moveRobotFromPos();
 //void turnAround(bool directionToTurnIsLeft);
 void turnAround();
+bool moveRobot = true;
 
   // INTERNET STUFF
 String readResponse();
@@ -344,6 +345,25 @@ void turnAround(){
     analogWrite(leftPin1, 0);
 //  }
   delay(600);
+}
+bool distance() {
+  float volts = analogRead(distSens) * 0.0048828125; // value from sensor * (5/1024)
+  int distance = 13 * pow(volts, -1); // worked out from datasheet graph
+  if (distance <= 3) {
+      return true;
+    } else {
+      return false;
+    }
+}
+void leaveLine(){
+  while(distance = true){
+    analogWrite(rightPin1, RIGHT_WHEEL_SPEED_MAX);
+    analogWrite(rightPin2,0);
+
+    analogWrite(leftPin1, LEFT_WHEEL_SPEED_MAX);
+    analogWrite(leftPin2, 0);
+  }
+  stopRobot();
 }
 
 void printWifiStatus() {
@@ -693,7 +713,7 @@ void routing(){
           rotateRobotLeft();
           moveRobotFromPos();
           delay(150);
-          //insert code fro leaving the track
+          leavingLine();
           break;
         case(1):
           if(facingEast){
@@ -701,7 +721,7 @@ void routing(){
           }
           moveRobotFromPos();
           delay(150);
-          //insert code for leaving track
+          leavingline();
           break;
         case(2):
           if(!facingEast){
@@ -712,7 +732,7 @@ void routing(){
           rotateRobotFromPos();
           moveRobotFromPos();
           delay(150);
-          //insert code
+          leavingLine();
           break;
         case(3):
           if(facingEast){
@@ -721,7 +741,7 @@ void routing(){
           moveRobotfromPos();
           delay(150);
           rotateRobotRight();
-          //insert code
+          leavingLine();
         break;
         case(4):
           if(facingEast){
@@ -730,7 +750,7 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           rotateRobotLeft();
-          //insert code
+          leavingLine();
           break;
       }
       currentPosition = 5;
