@@ -45,7 +45,7 @@ char server[] = "54.78.246.30";
 // that you want to connect to (port 80 is default for HTTP):
 WiFiClient client;
 
-int currentPosition = 0;
+int currentPosition = -1;
 int nextPosition = 0;
 bool facingEast = true;
 
@@ -190,13 +190,13 @@ void turnRight(){
 void rotateRobotRight(){
   // Right Wheel
   analogWrite(rightPin1, 0);
-  analogWrite(rightPin2, 150);
+  analogWrite(rightPin2, 170);
 
   // Left Wheel
-  analogWrite(leftPin1, 150);
+  analogWrite(leftPin1, 170);
   analogWrite(leftPin2, 0);
   bool keepTurning = true;
-  delay(100);
+  delay(150);
   
   while(keepTurning){
     sensorCombined = 0;
@@ -237,7 +237,7 @@ void rotateRobotLeft(){
   analogWrite(leftPin1, 0);
   analogWrite(leftPin2, 150);
   bool keepTurning = true;
-  delay(100);
+  delay(150);
 
   while(keepTurning){
     sensorCombined = 0;
@@ -337,10 +337,10 @@ void turnAround(){
 //  else{
     // Right Wheel
     analogWrite(rightPin2, 0);
-    analogWrite(rightPin1, 200);
+    analogWrite(rightPin1, 220);
   
     // Left Wheel
-    analogWrite(leftPin2, 200);
+    analogWrite(leftPin2, 220);
     analogWrite(leftPin1, 0);
 //  }
   delay(600);
@@ -447,6 +447,9 @@ void routing(){
   switch(nextPosition){
     case(0):
       switch(currentPosition){
+        case(-1):
+          currentPosition = 0;
+          break;
         case(1):
           if(!facingEast){
               turnAround();
@@ -526,6 +529,7 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
           stopRobot();
           rotateRobotLeft();
@@ -537,6 +541,15 @@ void routing(){
       // If next position is 2
     case(2):
       switch(currentPosition){
+        case(0):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          delay(150);
+          moveRobotFromPos();
+          facingEast = false;
+        break;
         case(1):
           if(!facingEast){
             turnAround();
@@ -558,7 +571,9 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
           facingEast = false;
         break;
@@ -568,6 +583,17 @@ void routing(){
       // If next position is 3
     case(3):
       switch(currentPosition){
+        case(0):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          delay(150);
+          moveRobotFromPos();
+          delay(150);
+          moveRobotFromPos();
+          facingEast = false;
+          break;
         case(1):
           if(facingEast){
             turnAround();
@@ -575,7 +601,7 @@ void routing(){
           moveRobotFromPos();
           rotateRobotRight();
           facingEast = true;
-        break;
+          break;
         case(2):
           if(facingEast){
             turnAround();
@@ -590,18 +616,26 @@ void routing(){
           moveRobotFromPos();
           moveRobotFromPos();
           facingEast = true;
-        break;
+          break;
       }
       currentPosition = 3;
       break;
       // If next position is 4
     case(4):
       switch(currentPosition){
+        case(0):
+          if(facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          facingEast = false;
+          break;
         case(1):
           if(!facingEast){
             turnAround();
           }
           moveRobotFromPos();
+          stopRobot();
           rotateRobotRight();
           moveRobotFromPos();
           facingEast = false;
@@ -620,6 +654,7 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(100);
           moveRobotFromPos();
           facingEast = true;
           break;
