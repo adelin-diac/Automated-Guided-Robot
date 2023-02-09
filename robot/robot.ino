@@ -455,6 +455,7 @@ void routing(){
               turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           stopRobot();
           rotateRobotRight();
           facingEast = false;
@@ -465,7 +466,9 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
+          delay(150);
           facingEast = false;
           currentPosition = 0;
           break;
@@ -474,8 +477,11 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
+          delay(150);
           facingEast= false;
           currentPosition = 0;
           break;
@@ -518,6 +524,7 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
           stopRobot();
           rotateRobotRight();
@@ -531,10 +538,12 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           moveRobotFromPos();
+          delay(150);
           stopRobot();
           rotateRobotLeft();
           facingEast = false;
           currentPosition = 1;
+          break;
       }
       
       break;
@@ -548,6 +557,7 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           moveRobotFromPos();
+          delay(150);
           facingEast = false;
         break;
         case(1):
@@ -564,6 +574,7 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           facingEast = true;
           break;
         case(4):
@@ -592,6 +603,7 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           moveRobotFromPos();
+          delay(150);
           facingEast = false;
           break;
         case(1):
@@ -599,6 +611,7 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           rotateRobotRight();
           facingEast = true;
           break;
@@ -607,6 +620,7 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           facingEast = false;
           break;
         case(4):
@@ -614,7 +628,9 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
+          delay(150);
           facingEast = true;
           break;
       }
@@ -628,6 +644,7 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           facingEast = false;
           break;
         case(1):
@@ -639,13 +656,15 @@ void routing(){
           rotateRobotRight();
           moveRobotFromPos();
           facingEast = false;
-        break;
+          break;
         case(2):
           if(!facingEast){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
+          delay(150);
           moveRobotFromPos();
           facingEast = false;
         break;
@@ -675,7 +694,7 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           //insert code fro leaving the track
-        break;
+          break;
         case(1):
           if(facingEast){
             turnAround();
@@ -683,7 +702,7 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           //insert code for leaving track
-        break;
+          break;
         case(2):
           if(!facingEast){
             turnAround();
@@ -694,7 +713,7 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           //insert code
-        break;
+          break;
         case(3):
           if(facingEast){
             turnAround();
@@ -712,7 +731,7 @@ void routing(){
           delay(150);
           rotateRobotLeft();
           //insert code
-        break;
+          break;
       }
       currentPosition = 5;
       break;
