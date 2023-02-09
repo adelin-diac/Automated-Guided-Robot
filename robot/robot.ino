@@ -445,7 +445,7 @@ void routing(){
   //take the current position and the next position and tries to get the route for it.
   //start with the position 0 and the next position as 1.
   switch(nextPosition){
-    case(0):
+    case(0): //next position = 0
       switch(currentPosition){
         case(-1):
           currentPosition = 0;
@@ -665,6 +665,54 @@ void routing(){
     case(5):
       switch(currentPosition){
         // This will make it go to a certain point and then stop near wall
+        case(0):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          delay(150);
+          rotateRobotLeft();
+          moveRobotFromPos();
+          delay(150);
+          //insert code fro leaving the track
+        break;
+        case(1):
+          if(facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          delay(150);
+          //insert code for leaving track
+        break;
+        case(2):
+          if(!facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          delay(150);
+          rotateRobotFromPos();
+          moveRobotFromPos();
+          delay(150);
+          //insert code
+        break;
+        case(3):
+          if(facingEast){
+            turnAround();
+          }
+          moveRobotfromPos();
+          delay(150);
+          rotateRobotRight();
+          //insert code
+        break;
+        case(4):
+          if(facingEast){
+            turnAround();
+          }
+          moveRobotFromPos();
+          delay(150);
+          rotateRobotLeft();
+          //insert code
+        break;
       }
       currentPosition = 5;
       break;
