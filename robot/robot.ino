@@ -4,8 +4,10 @@
 #define leftPin1 39 // Left Wheel pin1 - 2.6
 #define leftPin2 40 // Left Wheel pin2 - 2.7
 
+#define distSens 12 // Distance sensor - 5.1
+
 #define RIGHT_WHEEL_SPEED_MAX 220
-#define LEFT_WHEEL_SPEED_MAX 235
+#define LEFT_WHEEL_SPEED_MAX 255
 
 #ifndef __CC3200R1M1RGC__
 // Do not include SPI for CC3200 LaunchPad
@@ -14,6 +16,7 @@
 
 #include <WiFi.h>
 #define BUFSIZE 512
+
 
 
 // Sensor1 is leftmost sensor
@@ -64,9 +67,10 @@ void moveForward(int msDelay = 0, bool slowly = false);
 void moveBackward(int msDelay);
 void stopRobot();
 void moveRobotFromPos();
-//void turnAround(bool directionToTurnIsLeft);
+
 void turnAround();
-bool moveRobot = true;
+int distance();
+void leaveLine();
 
   // INTERNET STUFF
 String readResponse();
@@ -115,6 +119,8 @@ void setup() {
   
   pinMode(leftPin1, OUTPUT);
   pinMode(leftPin2, OUTPUT);
+
+  pinMode(distSens, INPUT);
 
 }
 
@@ -325,17 +331,7 @@ void stopRobot(){
 
 void turnAround(){
   // Turn right
-//  if(!directionToTurnIsLeft){
-//    // Right Wheel
-//    analogWrite(rightPin1, 0);
-//    analogWrite(rightPin2, 200);
-//  
-//    // Left Wheel
-//    analogWrite(leftPin1, 200);
-//    analogWrite(leftPin2, 0);
-//  }
-//  // Turn left
-//  else{
+
     // Right Wheel
     analogWrite(rightPin2, 0);
     analogWrite(rightPin1, 220);
@@ -343,27 +339,28 @@ void turnAround(){
     // Left Wheel
     analogWrite(leftPin2, 220);
     analogWrite(leftPin1, 0);
-//  }
   delay(600);
 }
-bool distance() {
+int distance() {
   float volts = analogRead(distSens) * 0.0048828125; // value from sensor * (5/1024)
-  int distance = 13 * pow(volts, -1); // worked out from datasheet graph
-  if (distance <= 3) {
-      return true;
-    } else {
-      return false;
-    }
+  int distance = 13 * pow(volts, -1);
+    Serial.println(distance);
+  return distance;
+  
 }
 void leaveLine(){
-  while(distance = true){
-    analogWrite(rightPin1, RIGHT_WHEEL_SPEED_MAX);
-    analogWrite(rightPin2,0);
+  int distanceVal = distance();
+  moveForward(0, false);
+  
+  while(true){
+//    Serial.println(distanceVal);
 
-    analogWrite(leftPin1, LEFT_WHEEL_SPEED_MAX);
-    analogWrite(leftPin2, 0);
+    if(distanceVal < 5){
+      stopRobot();
+      while(true);
+    }
+    distanceVal = distance();
   }
-  stopRobot();
 }
 
 void printWifiStatus() {
@@ -487,8 +484,6 @@ void routing(){
           }
           moveRobotFromPos();
           delay(150);
-          moveRobotFromPos();
-          delay(150);
           facingEast = false;
           currentPosition = 0;
           break;
@@ -576,8 +571,6 @@ void routing(){
           }
           moveRobotFromPos();
           delay(150);
-          moveRobotFromPos();
-          delay(150);
           facingEast = false;
         break;
         case(1):
@@ -639,8 +632,6 @@ void routing(){
           if(facingEast){
             turnAround();
           }
-          moveRobotFromPos();
-          delay(150);
           facingEast = false;
           break;
         case(4):
@@ -713,7 +704,7 @@ void routing(){
           rotateRobotLeft();
           moveRobotFromPos();
           delay(150);
-          leavingLine();
+          leaveLine();
           break;
         case(1):
           if(facingEast){
@@ -721,7 +712,8 @@ void routing(){
           }
           moveRobotFromPos();
           delay(150);
-          leavingline();
+          currentPosition = 5;
+          leaveLine();
           break;
         case(2):
           if(!facingEast){
@@ -729,19 +721,19 @@ void routing(){
           }
           moveRobotFromPos();
           delay(150);
-          rotateRobotFromPos();
+          rotateRobotRight();
           moveRobotFromPos();
           delay(150);
-          leavingLine();
+          leaveLine();
           break;
         case(3):
           if(facingEast){
             turnAround();
           }
-          moveRobotfromPos();
+          moveRobotFromPos();
           delay(150);
           rotateRobotRight();
-          leavingLine();
+          leaveLine();
         break;
         case(4):
           if(facingEast){
@@ -750,10 +742,9 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           rotateRobotLeft();
-          leavingLine();
+          leaveLine();
           break;
       }
-      currentPosition = 5;
       break;
   } 
 }
