@@ -21,6 +21,8 @@
   <body></body>
     <div id="pos" class="outfit-font fw-bold fs-4 text-center mt-5"></div>
     <button id="fb">Read Firebase</button>
+    <button id="take-control">Take Control</button>
+    <button id="remove-control">Remove Control</button>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
 
@@ -65,7 +67,27 @@
           .then((res) => res.json())
           .then((data) => console.log(data));
       }
+      function takeControl(){
+        fetch(
+          "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+          { method: "PUT" , header:{'Content-Type':'application/json'
+	},
+	body: JSON.stringify({control: 1})
+
+})
+      }
+      function removeControl(){
+        fetch(
+          "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+          { method: "PUT" , header:{'Content-Type':'application/json'
+	},
+	body: JSON.stringify({control: 0})
+
+})
+      }
       document.getElementById("fb").addEventListener("click", readfirebase);
+      document.getElementById("take-control").addEventListener("click", takeControl);
+      document.getElementById("remove-control").addEventListener("click", removeControl);
     </script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
