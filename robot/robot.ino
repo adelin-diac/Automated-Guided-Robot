@@ -197,10 +197,10 @@ void turnRight(){
 void rotateRobotRight(){
   // Right Wheel
   analogWrite(rightPin1, 0);
-  analogWrite(rightPin2, 170);
+  analogWrite(rightPin2, 190);
 
   // Left Wheel
-  analogWrite(leftPin1, 170);
+  analogWrite(leftPin1, 190);
   analogWrite(leftPin2, 0);
   bool keepTurning = true;
   delay(150);
@@ -572,6 +572,7 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           facingEast = false;
+          currentPosition = 2;
         break;
         case(1):
           if(!facingEast){
@@ -581,6 +582,7 @@ void routing(){
           stopRobot();
           rotateRobotLeft();
           facingEast = false;
+          currentPosition = 2;
           break;
         case(3):
           if(!facingEast){
@@ -589,6 +591,7 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           facingEast = true;
+          currentPosition = 2;
           break;
         case(4):
           if(!facingEast){
@@ -600,9 +603,10 @@ void routing(){
           delay(150);
           moveRobotFromPos();
           facingEast = false;
+          currentPosition = 2;
         break;
       }
-      currentPosition = 2;
+      
       break;
       // If next position is 3
     case(3):
@@ -618,6 +622,7 @@ void routing(){
           moveRobotFromPos();
           delay(150);
           facingEast = false;
+          currentPosition = 3;
           break;
         case(1):
           if(facingEast){
@@ -625,14 +630,17 @@ void routing(){
           }
           moveRobotFromPos();
           delay(150);
+          stopRobot();
           rotateRobotRight();
           facingEast = true;
+          currentPosition = 3;
           break;
         case(2):
           if(facingEast){
             turnAround();
           }
           facingEast = false;
+          currentPosition = 3;
           break;
         case(4):
           if(facingEast){
@@ -640,12 +648,10 @@ void routing(){
           }
           moveRobotFromPos();
           delay(150);
-          moveRobotFromPos();
-          delay(150);
           facingEast = true;
+          currentPosition = 3;
           break;
       }
-      currentPosition = 3;
       break;
       // If next position is 4
     case(4):
@@ -654,9 +660,8 @@ void routing(){
           if(facingEast){
             turnAround();
           }
-          moveRobotFromPos();
-          delay(150);
           facingEast = false;
+          currentPosition = 4;
           break;
         case(1):
           if(!facingEast){
@@ -667,6 +672,7 @@ void routing(){
           rotateRobotRight();
           moveRobotFromPos();
           facingEast = false;
+          currentPosition = 4;
           break;
         case(2):
           if(!facingEast){
@@ -678,7 +684,8 @@ void routing(){
           delay(150);
           moveRobotFromPos();
           facingEast = false;
-        break;
+          currentPosition = 4;
+          break;
         case(3):
           if(facingEast){
             turnAround();
@@ -687,9 +694,9 @@ void routing(){
           delay(100);
           moveRobotFromPos();
           facingEast = true;
+          currentPosition = 4;
           break;
       }
-      currentPosition = 4;
       break;
       // If next position is 5
     case(5):
