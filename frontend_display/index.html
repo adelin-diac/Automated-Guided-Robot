@@ -18,12 +18,25 @@
       }
     </style>
   </head>
-  <body>
-    <div class="d-flex">
-      <img class="mt-5 mx-auto" src="Path.svg" />
-    </div>
+  <body></body>
     <div id="pos" class="outfit-font fw-bold fs-4 text-center mt-5"></div>
-    <script>
+    <button id="fb">Read Firebase</button>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDk4NChmzRV0pvuX0AD8rE6vcietCyHx8g",
+        authDomain: "ee303-mobile-robotics.firebaseapp.com",
+        databaseURL:
+          "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ee303-mobile-robotics",
+        storageBucket: "ee303-mobile-robotics.appspot.com",
+        messagingSenderId: "350020182794",
+        appId: "1:350020182794:web:ffbc78c1d6e30e38f690f3",
+      };
+
+      const app = initializeApp(firebaseConfig);
+
       let pos;
       let nexPos;
       let finished = false;
@@ -44,6 +57,15 @@
               "Current Position = " + pos;
           });
       }
+      function readfirebase() {
+        fetch(
+          "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+          { method: "GET" }
+        )
+          .then((res) => res.json())
+          .then((data) => console.log(data));
+      }
+      document.getElementById("fb").addEventListener("click", readfirebase);
     </script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"

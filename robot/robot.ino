@@ -47,6 +47,9 @@ char server[] = "54.78.246.30";
 // with the IP address and port of the server
 // that you want to connect to (port 80 is default for HTTP):
 WiFiClient client;
+WiFiClient firebase;
+
+char dbURL[] = "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app";
 
 int currentPosition = -1;
 int nextPosition = 0;
@@ -125,6 +128,27 @@ void setup() {
 }
 
 void loop() {
+
+  while(true){
+    // read from firebase
+    Serial.println("firebase");
+    delay(1000);
+    if(firebase.connect(dbURL, 443)){
+      firebase.println("GET /.json");
+      firebase.print("Host: ");
+      firebase.print(dbURL);
+      firebase.println();
+      delay(1000);
+      
+      if(firebase.available()){
+        String line = firebase.readStringUntil('\r');
+        Serial.println(line);
+      }
+    }
+    firebase.stop();
+      
+  }
+  
   sensorCombined = 0;
   
   sensorVals[0] = digitalRead(sensor1); //left left
@@ -203,7 +227,7 @@ void rotateRobotRight(){
   analogWrite(leftPin1, 190);
   analogWrite(leftPin2, 0);
   bool keepTurning = true;
-  delay(150);
+  delay(170);
   
   while(keepTurning){
     sensorCombined = 0;
@@ -344,7 +368,6 @@ void turnAround(){
 int distance() {
   float volts = analogRead(distSens) * 0.0048828125; // value from sensor * (5/1024)
   int distance = 13 * pow(volts, -1);
-    Serial.println(distance);
   return distance;
   
 }
@@ -353,9 +376,7 @@ void leaveLine(){
   moveForward(0, false);
   
   while(true){
-//    Serial.println(distanceVal);
-
-    if(distanceVal < 5){
+    if(distanceVal < 3){
       stopRobot();
       while(true);
     }
@@ -588,8 +609,6 @@ void routing(){
           if(!facingEast){
             turnAround();
           }
-          moveRobotFromPos();
-          delay(150);
           facingEast = true;
           currentPosition = 2;
           break;
@@ -615,8 +634,6 @@ void routing(){
           if(!facingEast){
             turnAround();
           }
-          moveRobotFromPos();
-          delay(150);
           moveRobotFromPos();
           delay(150);
           moveRobotFromPos();
@@ -668,9 +685,11 @@ void routing(){
             turnAround();
           }
           moveRobotFromPos();
+          delay(150);
           stopRobot();
           rotateRobotRight();
           moveRobotFromPos();
+          delay(150);
           facingEast = false;
           currentPosition = 4;
           break;
@@ -711,6 +730,7 @@ void routing(){
           rotateRobotLeft();
           moveRobotFromPos();
           delay(150);
+          currentPosition = 5;
           leaveLine();
           break;
         case(1):
@@ -731,6 +751,7 @@ void routing(){
           rotateRobotRight();
           moveRobotFromPos();
           delay(150);
+          currentPosition = 5;
           leaveLine();
           break;
         case(3):
@@ -739,7 +760,11 @@ void routing(){
           }
           moveRobotFromPos();
           delay(150);
+          stopRobot();
+          delay(150);
           rotateRobotRight();
+          delay(150);
+          currentPosition = 5;
           leaveLine();
         break;
         case(4):
@@ -748,7 +773,11 @@ void routing(){
           }
           moveRobotFromPos();
           delay(150);
+          stopRobot();
+          delay(150);
           rotateRobotLeft();
+          delay(150);
+          currentPosition = 5;
           leaveLine();
           break;
       }
