@@ -16,26 +16,32 @@
       .outfit-font {
         font-family: "Outfit", "sans-serif";
       }
-      body{
+      body {
         background-color: #eeeeee;
       }
     </style>
   </head>
-  <body></body>
+  <body>
     <div id="pos" class="outfit-font fw-bold fs-4 text-center mt-5"></div>
     <div class="d-flex flex-column w-50 mx-auto outfit-font">
-
       <button id="take-control" class="btn btn-primary">Take Control</button>
-      <button id="remove-control" class="btn btn-danger my-2">Remove Control</button>
-      <div class="my-4">Direction: <span id="dir"></span><br/>Control Status: <span id="ctrl"></span></div>
+      <button id="remove-control" class="btn btn-danger my-2">
+        Remove Control
+      </button>
+      <div class="my-4 fw-bold">
+        Direction:
+        <span id="dir" class="fw-normal"></span>
+        <br />
+        Control Status:
+        <span id="ctrl" class="fw-normal"></span>
+      </div>
       <button id="forward" class="btn btn-info my-2">Forward</button>
       <button id="stop" class="btn btn-info my-2">Stop</button>
       <button id="backward" class="btn btn-info my-2">Backward</button>
       <button id="right" class="btn btn-info my-2">Right</button>
       <button id="left" class="btn btn-info my-2">Left</button>
     </div>
-    <script type="module">
-
+    <script>
       let pos;
       let direction = null;
       let control = null;
@@ -43,35 +49,19 @@
       window.addEventListener("load", function () {
         // Change the delay to around 200ms later!!
         // setInterval(fetchPosition, 1000);
-  //       fetch(
-  //         "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-  //         { method: "GET" }
-	// )
-  fetch("http://127.0.0.1:1880/get-data", {method: "GET"})
-  .then(res => res.json()).then((data) => {
-    console.log(data)
-    switch(data.control){
-      case 0:
-        document.getElementById("ctrl").innerHTML = "OFF"
-        break;
-      case 1:
-        document.getElementById("ctrl").innerHTML = "ON"
-        break;
-    }
-    if(data.control === 1){
-      switch(data.direction){
-        case 0:
-          document.getElementById("dir").innerHTML = "STOPPED"
-          break;
-        case 1:
-          document.getElementById("dir").innerHTML = "FORWARD"
-          break;
-        case 2:
-          document.getElementById("dir").innerHTML = "BACKWARD"
-          break;
-      }
-    }
-  })
+        //       fetch(
+        //         "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+        //         { method: "GET" }
+        // )
+        fetch("http://127.0.0.1:1880/get-data", { method: "GET" })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            direction = data.direction;
+            control = data.control;
+            setControlHTML(control);
+            setDirHTML(direction);
+          });
       });
 
       function fetchPosition() {
@@ -84,31 +74,43 @@
               "Current Position = " + data;
           });
       }
-      function takeControl(){
+      function takeControl() {
+        // fetch(
+        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+        //   {
+        //     method: "PATCH",
+        //     header: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ control: 1 }),
+        //   }
+        // );
         fetch("http://127.0.0.1:1880/set-control", {
-          method: "PUT", body: 1,
-        }).then((res) => res.json()).then(data => console.log(data))
-
-//         fetch(
-//           "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-//           { method: "PATCH" , header:{'Content-Type':'application/json'
-// 	},
-// 	body: JSON.stringify({control: 1})
-
-// })
+          method: "PUT",
+          body: 1,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Control: " + data);
+            setControlHTML(data);
+          });
       }
-      function removeControl(){
-
-  //       fetch(
-  //         "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-  //         { method: "PATCH" , header:{'Content-Type':'application/json'
-	// },
-	// body: JSON.stringify({control: 0})
-
-        // });
+      function removeControl() {
+        // fetch(
+        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+        //   {
+        //     method: "PATCH",
+        //     header: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ control: 0 }),
+        //   }
+        // );
         fetch("http://127.0.0.1:1880/set-control", {
-          method: "PUT", body: 0,
-        }).then(res => res.json()).then((data) => console.log(data))
+          method: "PUT",
+          body: 0,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Control: " + data);
+            setControlHTML(data);
+          });
       }
 
       // Robot Directions:
@@ -117,60 +119,157 @@
       // 2 = backward
       // 3 = right
       // 4 = left
-      function stopRobot(){
-        fetch(
-          "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-          { method: "PATCH" , header:{'Content-Type':'application/json'
-	},
-	body: JSON.stringify({direction: 0})
 
-});
-document.getElementById("dir").innerHTML = "STOPPED"}
-      function directionForward(){
-        fetch(
-          "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-          { method: "PATCH" , header:{'Content-Type':'application/json'
-	},
-	body: JSON.stringify({direction: 1})
-
-});document.getElementById("dir").innerHTML = "FORWARD"
+      function stopRobot() {
+        // fetch(
+        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+        //   {
+        //     method: "PATCH",
+        //     header: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ direction: 0 }),
+        //   }
+        // );
+        fetch("http://127.0.0.1:1880/set-dir", {
+          method: "PUT",
+          body: 0,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Direction: " + data);
+            setDirHTML(data);
+          });
+        // document.getElementById("dir").innerHTML = "STOPPED";
       }
-      function directionBackward(){
-        fetch(
-          "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-          { method: "PATCH" , header:{'Content-Type':'application/json'
-	},
-	body: JSON.stringify({direction: 2})
+      function directionForward() {
+        // fetch(
+        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+        //   {
+        //     method: "PATCH",
+        //     header: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ direction: 1 }),
+        //   }
+        // );
+        fetch("http://127.0.0.1:1880/set-dir", {
+          method: "PUT",
+          body: 1,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Direction: " + data);
+            setDirHTML(data);
+          });
+        // document.getElementById("dir").innerHTML = "FORWARD";
+      }
+      function directionBackward() {
+        // fetch(
+        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+        //   {
+        //     method: "PATCH",
+        //     header: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ direction: 2 }),
+        //   }
+        // );
+        fetch("http://127.0.0.1:1880/set-dir", {
+          method: "PUT",
+          body: 2,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Direction: " + data);
+            setDirHTML(data);
+          });
+        // document.getElementById("dir").innerHTML = "BACKWARD";
+      }
 
-});
-document.getElementById("dir").innerHTML = "BACKWARD"}
+      function right() {
+        // fetch(
+        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+        //   {
+        //     method: "PATCH",
+        //     header: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ direction: 3 }),
+        //   }
+        // );
+        fetch("http://127.0.0.1:1880/set-dir", {
+          method: "PUT",
+          body: 3,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Direction: " + data);
+            setDirHTML(data);
+          });
 
-function right(){
-  fetch(
-          "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-          { method: "PATCH" , header:{'Content-Type':'application/json'
-	},
-	body: JSON.stringify({direction: 3})
+        // document.getElementById("dir").innerHTML = "RIGHT";
+      }
+      function left() {
+        // fetch(
+        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
+        //   {
+        //     method: "PATCH",
+        //     header: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ direction: 4 }),
+        //   }
+        // );
+        fetch("http://127.0.0.1:1880/set-dir", {
+          method: "PUT",
+          body: 4,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Direction: " + data);
+            setDirHTML(data);
+          });
+        // document.getElementById("dir").innerHTML = "LEFT";
+      }
 
-});
-document.getElementById("dir").innerHTML = "RIGHT"
-}
-function left(){
-  fetch(
-          "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-          { method: "PATCH" , header:{'Content-Type':'application/json'
-	},
-	body: JSON.stringify({direction: 4})
+      function setDirHTML(directionVal) {
+        switch (directionVal) {
+          case 0:
+            document.getElementById("dir").innerHTML = "STOPPED";
+            break;
+          case 1:
+            document.getElementById("dir").innerHTML = "FORWARD";
+            break;
+          case 2:
+            document.getElementById("dir").innerHTML = "BACKWARD";
+            break;
+          case 3:
+            document.getElementById("dir").innerHTML = "RIGHT";
+            break;
+          case 4:
+            document.getElementById("dir").innerHTML = "LEFT";
+            break;
+        }
+      }
 
-});
-document.getElementById("dir").innerHTML = "LEFT"
-}
+      function setControlHTML(controlVal) {
+        switch (controlVal) {
+          case 0:
+            document.getElementById("ctrl").innerHTML = "OFF";
+            break;
+          case 1:
+            document.getElementById("ctrl").innerHTML = "ON";
+            break;
+        }
+      }
+      document
+        .getElementById("take-control")
+        .addEventListener("click", takeControl);
 
-      document.getElementById("take-control").addEventListener("click", takeControl);
-      document.getElementById("remove-control").addEventListener("click", removeControl);
-      document.getElementById("forward").addEventListener("click", directionForward);
+      document
+        .getElementById("remove-control")
+        .addEventListener("click", removeControl);
+
+      document
+        .getElementById("forward")
+        .addEventListener("click", directionForward);
       document.getElementById("stop").addEventListener("click", stopRobot);
-      document.getElementById("backward").addEventListener("click", directionBackward);
+
+      document
+        .getElementById("backward")
+        .addEventListener("click", directionBackward);
+
       document.getElementById("right").addEventListener("click", right);
       document.getElementById("left").addEventListener("click", left);
     </script>
