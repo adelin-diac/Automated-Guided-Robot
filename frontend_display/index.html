@@ -22,26 +22,46 @@
     </style>
   </head>
   <body>
-    <div id="pos" class="outfit-font fw-bold fs-4 text-center mt-5"></div>
-    <div class="d-flex flex-column w-50 mx-auto outfit-font">
-      <button id="take-control" class="btn btn-primary">Take Control</button>
-      <button id="remove-control" class="btn btn-danger my-2">
+    <div id="pos" class="outfit-font fw-bold fs-4 text-center my-5"></div>
+    <div
+      class="d-flex flex-column mx-auto outfit-font"
+      style="max-width: 400px"
+    >
+      <button id="take-control" class="btn btn-primary w-50 mx-auto">
+        Take Control
+      </button>
+      <button id="remove-control" class="btn btn-danger my-2 w-50 mx-auto">
         Remove Control
       </button>
-      <div class="my-4 fw-bold">
+      <div class="my-4 fw-bold mx-auto">
         Direction:
         <span id="dir" class="fw-normal"></span>
         <br />
         Control Status:
         <span id="ctrl" class="fw-normal"></span>
       </div>
-      <button id="forward" class="btn btn-info my-2">Forward</button>
-      <button id="stop" class="btn btn-info my-2">Stop</button>
-      <button id="backward" class="btn btn-info my-2">Backward</button>
-      <button id="right" class="btn btn-info my-2">Right</button>
-      <button id="left" class="btn btn-info my-2">Left</button>
+      <button id="forward" class="btn btn-info my-2 w-50 mx-auto">
+        Forward
+      </button>
+      <div class="d-flex justify-content-center">
+        <button id="left" class="btn btn-info my-2 px-5">Left</button>
+        <div style="width: 20%"></div>
+        <button id="right" class="btn btn-info my-2 px-5">Right</button>
+      </div>
+      <button id="backward" class="btn btn-info my-2 w-50 mx-auto">
+        Backward
+      </button>
+      <button id="stop" class="btn btn-outline-danger my-2 mx-auto w-50">
+        Stop
+      </button>
+      <!-- <button id="get-dir-test">Test</button> -->
     </div>
     <script>
+      // document.getElementById("get-dir-test").addEventListener("click", function () {
+      //   fetch("http://127.0.0.1:1880/get-dir", { method: "GET" })
+      //     .then((res) => res.json())
+      //     .then((data) => console.log(data));
+      // });
       let pos;
       let direction = null;
       let control = null;
@@ -53,6 +73,10 @@
         //         "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
         //         { method: "GET" }
         // )
+        // setInterval(fetchData, 250);
+        fetchData();
+      });
+      function fetchData() {
         fetch("http://127.0.0.1:1880/get-data", { method: "GET" })
           .then((res) => res.json())
           .then((data) => {
@@ -62,7 +86,7 @@
             setControlHTML(control);
             setDirHTML(direction);
           });
-      });
+      }
 
       function fetchPosition() {
         fetch("http://54.78.246.30:8081/api/position/e6295a5e", {
