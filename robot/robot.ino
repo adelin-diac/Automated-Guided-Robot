@@ -48,7 +48,6 @@ char server[] = "54.78.246.30";
 // with the IP address and port of the server
 // that you want to connect to (port 80 is default for HTTP):
 WiFiClient client;
-WiFiClient node_red;
 
 int currentPosition = -1;
 int nextPosition = 0;
@@ -127,141 +126,8 @@ void setup() {
   digitalWrite(statusLED, HIGH);
 }
 
-char myLaptopIP[] = "192.168.1.150";
-int controlVal = 0;
-int direction = 0;
-
 void loop() {
-  while(controlVal == 0){
-    // read from node-red
-    delay(1000);
-    Serial.println("hh");
-    if(node_red.connect(myLaptopIP, 1880)){
-      Serial.println("Connected to node-red");
-      node_red.println("GET /take-control HTTP/1.1");
-      node_red.println();
-      delay(1000);
-      if(node_red.available()){
-        Serial.println("getting res");
-        char buffer2[512];
-        memset(buffer2,0,512);
-        node_red.readBytes(buffer2,512);
-        String response(buffer2);
-//        Serial.println(response);
-        int split = response.indexOf("\r\n\r\n");
-        String body = response.substring(split+4, response.length());
-        body.trim();
-        controlVal = body.toInt();
-        Serial.println(controlVal);
-      }
-    }
-    node_red.stop();  
-  }
-  while(controlVal == 1){
-    if(direction < 6){
-      
-    if(node_red.connect(myLaptopIP, 1880)){
-      node_red.println("GET /get-dir HTTP/1.1");
-      node_red.println();
-      Serial.println("requested for direction");
-//      if(node_red.available()){
-        Serial.println("getting dir");
-        char buffer2[512];
-        memset(buffer2,0,512);
-        node_red.readBytes(buffer2,512);
-        String response(buffer2);
-//        Serial.println(response);
-        int split = response.indexOf("\r\n\r\n");
-        String body = response.substring(split+4, response.length());
-        body.trim();
-        direction = body.toInt();
-//      }
-    }
-    node_red.stop();
-    }
-
-    switch(direction){
-      case 0:
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        direction = 0;
-        break;
-      case 1:
-        moveForward(0, false);
-        direction = 0;
-        break;
-      case 2:
-        moveBackward(0);
-        direction = 0;
-        break;
-      case 3: // turn right
-      // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 100);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 100);
-        analogWrite(leftPin2, 0);
-        delay(200);
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        direction = 6;
-        break;
-      case 4: // turn left
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        // Right Wheel
-        analogWrite(rightPin1, 100);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 100);
-        delay(200);
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        direction = 6;
-        break;
-      default:
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        direction = 6;
-        break;
-    }
-    delay(1000);
-  }
+  
   sensorCombined = 0;
   
   sensorVals[0] = digitalRead(sensor1); //left left
