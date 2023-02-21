@@ -1,0 +1,243 @@
+[
+    {
+        "id": "ceb3da85355e298a",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "72bd3fb6ec9152ba",
+        "type": "http in",
+        "z": "ceb3da85355e298a",
+        "name": "request-url: /set-control",
+        "url": "/set-control",
+        "method": "put",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 360,
+        "wires": [
+            [
+                "076583ac8f5d4012"
+            ]
+        ]
+    },
+    {
+        "id": "5f27bf6354c3332c",
+        "type": "http response",
+        "z": "ceb3da85355e298a",
+        "name": "",
+        "statusCode": "200",
+        "headers": {},
+        "x": 560,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "076583ac8f5d4012",
+        "type": "function",
+        "z": "ceb3da85355e298a",
+        "name": "set flow.control",
+        "func": "flow.set(\"control\", parseInt(msg.payload));\nmsg.payload = flow.get(\"control\")\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 360,
+        "wires": [
+            [
+                "5f27bf6354c3332c"
+            ]
+        ]
+    },
+    {
+        "id": "66930b2f6b600818",
+        "type": "http in",
+        "z": "ceb3da85355e298a",
+        "name": "request-url: /get-data",
+        "url": "/get-data",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 280,
+        "wires": [
+            [
+                "f444af67d4e9f8af"
+            ]
+        ]
+    },
+    {
+        "id": "72a920f0211a7068",
+        "type": "http in",
+        "z": "ceb3da85355e298a",
+        "name": "request-url: /get-control",
+        "url": "/get-control",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 440,
+        "wires": [
+            [
+                "f357120569f896e2"
+            ]
+        ]
+    },
+    {
+        "id": "a6e6d3ea7a253c4e",
+        "type": "http response",
+        "z": "ceb3da85355e298a",
+        "name": "respond with control",
+        "statusCode": "200",
+        "headers": {},
+        "x": 760,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "3d82eae96b412a43",
+        "type": "inject",
+        "z": "ceb3da85355e298a",
+        "name": "set control & direction on startup",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "2e1b988c3a76cb06"
+            ]
+        ]
+    },
+    {
+        "id": "2e1b988c3a76cb06",
+        "type": "change",
+        "z": "ceb3da85355e298a",
+        "name": "set control & direction in flow",
+        "rules": [
+            {
+                "t": "set",
+                "p": "control",
+                "pt": "flow",
+                "to": "0",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 440,
+        "y": 200,
+        "wires": [
+            [
+                "43f250aa239694c1"
+            ]
+        ]
+    },
+    {
+        "id": "bce4e6eafbbc8b7f",
+        "type": "debug",
+        "z": "ceb3da85355e298a",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 840,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "f444af67d4e9f8af",
+        "type": "function",
+        "z": "ceb3da85355e298a",
+        "name": "respond with flow.control",
+        "func": "msg.payload = {control: flow.get(\"control\")}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 280,
+        "wires": [
+            [
+                "a6e6d3ea7a253c4e"
+            ]
+        ]
+    },
+    {
+        "id": "43f250aa239694c1",
+        "type": "function",
+        "z": "ceb3da85355e298a",
+        "name": "function 2",
+        "func": "msg.payload = { control: flow.get(\"control\")}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 200,
+        "wires": [
+            [
+                "bce4e6eafbbc8b7f"
+            ]
+        ]
+    },
+    {
+        "id": "d42a487a2d331f1b",
+        "type": "http response",
+        "z": "ceb3da85355e298a",
+        "name": "",
+        "statusCode": "200",
+        "headers": {},
+        "x": 600,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "f357120569f896e2",
+        "type": "function",
+        "z": "ceb3da85355e298a",
+        "name": "respond with flow.control",
+        "func": "msg.payload = flow.get(\"control\");\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 440,
+        "wires": [
+            [
+                "d42a487a2d331f1b"
+            ]
+        ]
+    }
+]
