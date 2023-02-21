@@ -60,29 +60,15 @@
       <!-- <button id="get-dir-test">Test</button> -->
     </div>
     <script>
-      // let led = "L";
-      // document
-      //   .getElementById("get-dir-test")
-      //   .addEventListener("click", function () {
-      //     fetch("http://192.168.1.135:80/" + led, {
-      //       method: "GET",
-      //       mode: "no-cors",
-      //     });
-      //     if (led === "H") led = "L";
-      //     else if (led === "L") led = "H";
-      //   });
       let pos;
       let direction = null;
-      let control = null;
+      let control = 0;
 
       window.addEventListener("load", function () {
         // Change the delay to around 200ms later!!
         // setInterval(fetchPosition, 1000);
-        //       fetch(
-        //         "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-        //         { method: "GET" }
-        // )
         // setInterval(fetchData, 250);
+
         fetchData();
       });
       function fetchData() {
@@ -108,14 +94,7 @@
           });
       }
       function takeControl() {
-        // fetch(
-        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-        //   {
-        //     method: "PATCH",
-        //     header: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ control: 1 }),
-        //   }
-        // );
+        control = 1;
         // fetch("http://192.168.1.135:80/get-ctrl", {
         //   method: "GET",
         //   mode: "no-cors",
@@ -132,22 +111,15 @@
           });
       }
       function removeControl() {
-        // fetch(
-        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-        //   {
-        //     method: "PATCH",
-        //     header: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ control: 0 }),
-        //   }
-        // );
-        // fetch("http://192.168.1.135:80/rem-ctrl", {
-        //   method: "GET",
-        //   mode: "no-cors",
-        // });
-
+        control = 0;
         fetch("http://192.168.1.135:80/stop", {
           method: "GET",
           mode: "no-cors",
+        }).then(() => {
+          fetch("http://192.168.1.135:80/ctrl-rem", {
+            method: "GET",
+            mode: "no-cors",
+          });
         });
 
         fetch("http://127.0.0.1:1880/set-control", {
@@ -169,14 +141,7 @@
       // 4 = left
 
       function stopRobot() {
-        // fetch(
-        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-        //   {
-        //     method: "PATCH",
-        //     header: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ direction: 0 }),
-        //   }
-        // );
+        if (control === 0) return;
 
         fetch("http://192.168.1.135:80/stop", {
           method: "GET",
@@ -192,17 +157,10 @@
             console.log("Direction: " + data);
             setDirHTML(data);
           });
-        // document.getElementById("dir").innerHTML = "STOPPED";
       }
       function directionForward() {
-        // fetch(
-        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-        //   {
-        //     method: "PATCH",
-        //     header: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ direction: 1 }),
-        //   }
-        // );
+        if (control === 0) return;
+
         fetch("http://192.168.1.135:80/fwd", {
           method: "GET",
           mode: "no-cors",
@@ -217,17 +175,10 @@
             console.log("Direction: " + data);
             setDirHTML(data);
           });
-        // document.getElementById("dir").innerHTML = "FORWARD";
       }
       function directionBackward() {
-        // fetch(
-        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-        //   {
-        //     method: "PATCH",
-        //     header: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ direction: 2 }),
-        //   }
-        // );
+        if (control === 0) return;
+
         fetch("http://192.168.1.135:80/back", {
           method: "GET",
           mode: "no-cors",
@@ -242,18 +193,11 @@
             console.log("Direction: " + data);
             setDirHTML(data);
           });
-        // document.getElementById("dir").innerHTML = "BACKWARD";
       }
 
       function right() {
-        // fetch(
-        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-        //   {
-        //     method: "PATCH",
-        //     header: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ direction: 3 }),
-        //   }
-        // );
+        if (control === 0) return;
+
         fetch("http://192.168.1.135:80/r", {
           method: "GET",
           mode: "no-cors",
@@ -268,18 +212,9 @@
             console.log("Direction: " + data);
             setDirHTML(data);
           });
-
-        // document.getElementById("dir").innerHTML = "RIGHT";
       }
       function left() {
-        // fetch(
-        //   "https://ee303-mobile-robotics-default-rtdb.europe-west1.firebasedatabase.app/.json",
-        //   {
-        //     method: "PATCH",
-        //     header: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ direction: 4 }),
-        //   }
-        // );
+        if (control === 0) return;
 
         fetch("http://192.168.1.135:80/l", {
           method: "GET",
@@ -295,7 +230,6 @@
             console.log("Direction: " + data);
             setDirHTML(data);
           });
-        // document.getElementById("dir").innerHTML = "LEFT";
       }
 
       function setDirHTML(directionVal) {
@@ -310,10 +244,10 @@
             document.getElementById("dir").innerHTML = "BACKWARD";
             break;
           case 3:
-            document.getElementById("dir").innerHTML = "RIGHT THEN STOPS";
+            document.getElementById("dir").innerHTML = "RIGHT";
             break;
           case 4:
-            document.getElementById("dir").innerHTML = "LEFT THEN STOPS";
+            document.getElementById("dir").innerHTML = "LEFT";
             break;
         }
       }

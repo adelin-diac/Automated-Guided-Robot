@@ -7,7 +7,7 @@
 #define distSens 12 // Distance sensor - 5.1
 
 #define RIGHT_WHEEL_SPEED_MAX 255
-#define LEFT_WHEEL_SPEED_MAX 245
+#define LEFT_WHEEL_SPEED_MAX 255
 
 #ifndef __CC3200R1M1RGC__
 // Do not include SPI for CC3200 LaunchPad
@@ -16,8 +16,6 @@
 
 #include <WiFi.h>
 #define BUFSIZE 512
-
-
 
 // Sensor1 is leftmost sensor
 // Sensor5 is rightmost sensor
@@ -48,10 +46,12 @@ char server[] = "54.78.246.30";
 // with the IP address and port of the server
 // that you want to connect to (port 80 is default for HTTP):
 WiFiClient client;
+WiFiClient node_red;
 
 int currentPosition = -1;
 int nextPosition = 0;
 bool facingEast = true;
+int controlVal = 0;
 
 bool stopConnection = false;
 String serverResponse;
@@ -73,6 +73,9 @@ void turnAround();
 int distance();
 void leaveLine();
 
+// others
+boolean endsWith(char* inString, const char* compString);
+
   // INTERNET STUFF
 String readResponse();
 String getResponseBody(String& response);
@@ -81,33 +84,36 @@ String fetchNextPosition(int currentPos);
 void sendAndReceiveServerResponse();
 void routing();
 
+void checkControlVal();
+void remoteControl();
+
 void setup() {
     //Initialize serial and wait for port to open:
-     Serial.begin(9600);
+     Serial.begin(19200);
 
   // attempt to connect to Wifi network:
-//    Serial.print("Attempting to connect to Network named: ");
-//  // print the network name (SSID);
-//  Serial.println(ssid); 
-//  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-//    WiFi.begin(ssid, password);
-//    while ( WiFi.status() != WL_CONNECTED) {
-//    // print dots while we wait to connect
-//       Serial.print(".");
-//       delay(300);
-//     }
-//  
-//  Serial.println("\nYou're connected to the network");
-//  Serial.println("Waiting for an ip address");
-//  
-//     while (WiFi.localIP() == INADDR_NONE) {
-//    // print dots while we wait for an ip addresss
-//     Serial.print(".");
-//     delay(300);
-//     }
-//
-//  Serial.println("\nIP Address obtained");
-//  printWifiStatus();
+    Serial.print("Attempting to connect to Network named: ");
+  // print the network name (SSID);
+  Serial.println(ssid); 
+  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+    WiFi.begin(ssid, password);
+    while ( WiFi.status() != WL_CONNECTED) {
+    // print dots while we wait to connect
+       Serial.print(".");
+       delay(300);
+     }
+  
+  Serial.println("\nYou're connected to the network");
+  Serial.println("Waiting for an ip address");
+  
+     while (WiFi.localIP() == INADDR_NONE) {
+    // print dots while we wait for an ip addresss
+     Serial.print(".");
+     delay(300);
+     }
+
+  Serial.println("\nIP Address obtained");
+  printWifiStatus();
 
   pinMode(sensor1, INPUT);
   pinMode(sensor2, INPUT);
@@ -127,13 +133,6 @@ void setup() {
 }
 
 void loop() {
-  while(true){
-    moveForward(5000, false);
-    stopRobot();
-    delay(1000);
-    moveBackward(5000);
-    delay(1000);
-  }
   sensorCombined = 0;
   
   sensorVals[0] = digitalRead(sensor1); //left left
@@ -340,8 +339,7 @@ void stopRobot(){
 }
 
 void turnAround(){
-  // Turn right
-
+    // Turn right
     // Right Wheel
     analogWrite(rightPin2, 0);
     analogWrite(rightPin1, 220);
@@ -362,9 +360,17 @@ void leaveLine(){
   moveForward(0, false);
   
   while(true){
+    Serial.println(distanceVal);
     if(distanceVal < 3){
       stopRobot();
-      while(true);
+      
+      Serial.println("Starting webserver on port 80");
+      controlServer.begin();                           // start the web server on port 80
+      Serial.println("Webserver started!");
+      
+      while(true){
+        remoteControl();
+      }
     }
     distanceVal = distance();
   }
@@ -451,9 +457,7 @@ void sendAndReceiveServerResponse(){
       if(!stopConnection){
         nextPosition = serverResponse.toInt();
       }
-          
-      // Get path to next position
-      
+                
       // If disconnected from server & stopconnection is true -> stop forever at intersection
       if (!client.connected()) {   
       // do nothing forevermore:
@@ -463,6 +467,258 @@ void sendAndReceiveServerResponse(){
       } 
     }
     routing();
+}
+void moveRobotFromPos(){
+  bool moveIt = true;
+  while(moveIt){
+    sensorCombined = 0;
+  
+    sensorVals[0] = digitalRead(sensor1); //left left
+    sensorVals[1] = digitalRead(sensor2); //left
+    sensorVals[2] = digitalRead(sensor3); //middle
+    sensorVals[3] = digitalRead(sensor4); //right
+    sensorVals[4] = digitalRead(sensor5); //right right
+    
+    for(int i=0; i<5; i++){
+     sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
+    }
+  
+    switch(sensorCombined){
+      case(15): // 01111 = 15
+        turnLeft();
+        break;
+      case(7): // 00111 = 7
+        turnLeft();
+        break;
+      case(23): // 10111 = 23
+        turnLeft();
+        break;
+      //////////////////////
+      case(30): // 11110 = 30
+        turnRight();
+        break;
+      case(28): // 11100 = 28
+        turnRight();
+        break;
+      case(29): // 11101 = 29
+        turnRight();
+        break;
+      /////////////////////////
+      case(27): // 11011 = 27
+        moveForward();
+        break;
+      ///////////////////////////
+      case(0): //00000
+        moveIt = false;
+        break;
+      case(16): //10000
+        moveIt = false;
+        break;
+      case(1): //00001
+        moveIt = false;
+        break;
+      ///////////////////////////
+      default:
+        moveForward(0, true);
+        break;
+    }
+  } 
+}
+
+char myLaptopIP[] = "192.168.1.150";
+
+void checkControlVal(){
+  if(node_red.connect(myLaptopIP, 1880)){
+      Serial.println("Connected to node-red");
+      node_red.println("GET /get-control HTTP/1.1");
+      node_red.println();
+//      if(node_red.available()){
+      Serial.println("getting res");
+      char buffer2[512];
+      memset(buffer2,0,512);
+      node_red.readBytes(buffer2,512);
+      String response(buffer2);
+      int split = response.indexOf("\r\n\r\n");
+      String body = response.substring(split+4, response.length());
+      body.trim();
+      controlVal = body.toInt();
+//      }
+    }
+    node_red.stop();
+}
+
+WiFiServer controlServer(80);
+bool moving = false;
+bool directionRight = false;
+bool directionLeft = false;
+
+void remoteControl(){
+  checkControlVal();
+  Serial.println(controlVal);
+  
+  while(controlVal == 1){
+    int i = 0;
+    WiFiClient clientConnected = controlServer.available();   // listen for incoming clients
+
+    if (clientConnected) {                             // if you get a client,
+      char serverBuffer[150] = {0};                 // make a buffer to hold incoming data
+      while (clientConnected.connected()) {            // loop while the client's connected
+  //      if(controlVal == 0){return;}
+        if (clientConnected.available()) {             // if there's bytes to read from the client,
+          char c = clientConnected.read();             // read a byte, then
+          Serial.write(c);                    // print it out the serial monitor
+          if (c == '\n') {                    // if the byte is a newline character
+  
+            // if the current line is blank, you got two newline characters in a row.
+            // that's the end of the client HTTP request, so send a response:
+            if (strlen(serverBuffer) == 0) {
+              // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+              // and a content-type so the client knows what's coming, then a blank line:
+              clientConnected.println("HTTP/1.1 200 OK");
+              clientConnected.println("Content-type:text/html");
+              clientConnected.println();
+  
+              break;
+            }
+            else {      // if you got a newline, then clear the buffer:
+              memset(serverBuffer, 0, 150);
+              i = 0;
+            }
+          }
+          else if (c != '\r') {    // if you got anything else but a carriage return character,
+            serverBuffer[i++] = c;      // add it to the end of the currentLine
+          }
+          
+          if(endsWith(serverBuffer, "GET /ctrl-rem")){
+            controlVal = 0;
+          }
+          else if (endsWith(serverBuffer, "GET /stop")) {
+            // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 0);
+        
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 0); 
+            moving = false;
+            directionRight = false;
+            directionLeft = false;
+          }
+          else if (endsWith(serverBuffer, "GET /fwd")) {
+            moveForward(0, false);  
+            moving = true;
+            directionRight = false;
+            directionLeft = false;         
+          }
+          if(endsWith(serverBuffer, "GET /back")){
+            moveBackward(0);
+            moving = true;
+            directionRight = false;
+            directionLeft = false;
+          }
+          else if(endsWith(serverBuffer, "GET /r")){
+            
+            if(moving){
+              if(directionLeft){
+                // Left Wheel
+                analogWrite(leftPin1, 255);
+                analogWrite(leftPin2, 0);
+              }
+              // Right Wheel
+              analogWrite(rightPin1, 100);
+              analogWrite(rightPin2, 0);
+            }else{
+               // Right Wheel
+              analogWrite(rightPin1, 0);
+              analogWrite(rightPin2, 0);
+            
+              // Left Wheel
+              analogWrite(leftPin1, 0);
+              analogWrite(leftPin2, 0);
+              // Right Wheel
+              analogWrite(rightPin1, 0);
+              analogWrite(rightPin2, 255);
+            
+              // Left Wheel
+              analogWrite(leftPin1, 255);
+              analogWrite(leftPin2, 0);
+              delay(200);
+              // Right Wheel
+              analogWrite(rightPin1, 0);
+              analogWrite(rightPin2, 0);
+            
+              // Left Wheel
+              analogWrite(leftPin1, 0);
+              analogWrite(leftPin2, 0);
+   
+              directionLeft = false;
+              directionRight = true;
+            } 
+           
+          }
+          else if(endsWith(serverBuffer, "GET /l")){
+            
+            if(moving){
+              if(directionRight){
+                // Right Wheel
+                analogWrite(rightPin1, 255);
+                analogWrite(rightPin2, 0);
+              }
+              // Left Wheel
+              analogWrite(leftPin1, 100);
+              analogWrite(leftPin2, 0);
+            }else{
+              // Right Wheel
+              analogWrite(rightPin1, 0);
+              analogWrite(rightPin2, 0);
+            
+              // Left Wheel
+              analogWrite(leftPin1, 0);
+              analogWrite(leftPin2, 0);
+              // Right Wheel
+              analogWrite(rightPin1, 255);
+              analogWrite(rightPin2, 0);
+            
+              // Left Wheel
+              analogWrite(leftPin1, 0);
+              analogWrite(leftPin2, 255);
+              delay(200);
+              // Right Wheel
+              analogWrite(rightPin1, 0);
+              analogWrite(rightPin2, 0);
+            
+              // Left Wheel
+              analogWrite(leftPin1, 0);
+              analogWrite(leftPin2, 0);
+  
+              directionLeft = true;
+              directionRight = false;
+            }
+          }
+        }
+      }
+      // close the connection:
+      clientConnected.stop();
+      Serial.println("client disonnected");
+    }
+  }
+}
+
+//a way to check if one array ends with another array
+boolean endsWith(char* inString, const char* compString) {
+  int compLength = strlen(compString);
+  int strLength = strlen(inString);
+  
+  //compare the last "compLength" values of the inString
+  int i;
+  for (i = 0; i < compLength; i++) {
+    char a = inString[(strLength - 1) - i];
+    char b = compString[(compLength - 1) - i];
+    if (a != b) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void routing(){
@@ -769,62 +1025,4 @@ void routing(){
       }
       break;
   } 
-}
-
-void moveRobotFromPos(){
-  bool moveIt = true;
-  while(moveIt){
-    sensorCombined = 0;
-  
-    sensorVals[0] = digitalRead(sensor1); //left left
-    sensorVals[1] = digitalRead(sensor2); //left
-    sensorVals[2] = digitalRead(sensor3); //middle
-    sensorVals[3] = digitalRead(sensor4); //right
-    sensorVals[4] = digitalRead(sensor5); //right right
-    
-    for(int i=0; i<5; i++){
-     sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
-    }
-  
-    switch(sensorCombined){
-      case(15): // 01111 = 15
-        turnLeft();
-        break;
-      case(7): // 00111 = 7
-        turnLeft();
-        break;
-      case(23): // 10111 = 23
-        turnLeft();
-        break;
-      //////////////////////
-      case(30): // 11110 = 30
-        turnRight();
-        break;
-      case(28): // 11100 = 28
-        turnRight();
-        break;
-      case(29): // 11101 = 29
-        turnRight();
-        break;
-      /////////////////////////
-      case(27): // 11011 = 27
-        moveForward();
-        break;
-      ///////////////////////////
-      case(0): //00000
-        moveIt = false;
-        break;
-      case(16): //10000
-        moveIt = false;
-        break;
-      case(1): //00001
-        moveIt = false;
-        break;
-      ///////////////////////////
-      default:
-        moveForward(0, true);
-        break;
-    }
-  }
-  
 }

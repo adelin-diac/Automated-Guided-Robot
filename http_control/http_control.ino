@@ -78,7 +78,7 @@ void loop() {
       Serial.println("Connected to node-red");
       node_red.println("GET /get-control HTTP/1.1");
       node_red.println();
-      delay(1000);
+//      delay(1000);
       if(node_red.available()){
         Serial.println("getting res");
         char buffer2[512];

@@ -68,13 +68,12 @@ void setup() {
   digitalWrite(statusLED, HIGH);
 }
 
-int controlVal = 0;
+byte controlVal = 0;
 bool moving = false;
+bool directionRight = false;
+bool directionLeft = false;
 
 void loop() {
-
-  // have a /set-dir and read body from it
-  // have a /set-control and read body from it
   
   int i = 0;
   WiFiClient client = server.available();   // listen for incoming clients
@@ -116,77 +115,100 @@ void loop() {
           // Left Wheel
           analogWrite(leftPin1, 0);
           analogWrite(leftPin2, 0); 
-          moving = false; 
+          moving = false;
+          directionRight = false;
+          directionLeft = false;
         }
         if (endsWith(buffer, "GET /fwd")) {
           moveForward(0, false);  
-          moving = true;           
+          moving = true;
+          directionRight = false;
+          directionLeft = false;         
         }
         if(endsWith(buffer, "GET /back")){
           moveBackward(0);
           moving = true;
+          directionRight = false;
+          directionLeft = false;
         }
         if(endsWith(buffer, "GET /r")){
+          
           if(moving){
+            if(directionLeft){
+              // Left Wheel
+              analogWrite(leftPin1, 255);
+              analogWrite(leftPin2, 0);
+            }
+            // Right Wheel
+            analogWrite(rightPin1, 100);
+            analogWrite(rightPin2, 0);
+          }else{
+             // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 0);
             // Right Wheel
             analogWrite(rightPin1, 0);
-            analogWrite(rightPin2, 100);
-            break; // might have to just change to an if-else
-          }
+            analogWrite(rightPin2, 255);
           
-          // Right Wheel
-          analogWrite(rightPin1, 0);
-          analogWrite(rightPin2, 0);
-        
-          // Left Wheel
-          analogWrite(leftPin1, 0);
-          analogWrite(leftPin2, 0);
-          // Right Wheel
-          analogWrite(rightPin1, 0);
-          analogWrite(rightPin2, 255);
-        
-          // Left Wheel
-          analogWrite(leftPin1, 255);
-          analogWrite(leftPin2, 0);
-          delay(200);
-          // Right Wheel
-          analogWrite(rightPin1, 0);
-          analogWrite(rightPin2, 0);
-        
-          // Left Wheel
-          analogWrite(leftPin1, 0);
-          analogWrite(leftPin2, 0);
+            // Left Wheel
+            analogWrite(leftPin1, 255);
+            analogWrite(leftPin2, 0);
+            delay(200);
+            // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 0);
+ 
+            directionLeft = false;
+            directionRight = true;
+          } 
+         
         }
         if(endsWith(buffer, "GET /l")){
-          // will need a case for forwards or backwards
+          
           if(moving){
+            if(directionRight){
+              // Right Wheel
+              analogWrite(rightPin1, 255);
+              analogWrite(rightPin2, 0);
+            }
+            // Left Wheel
+            analogWrite(leftPin1, 100);
+            analogWrite(leftPin2, 0);
+          }else{
             // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
             analogWrite(leftPin1, 0);
-            analogWrite(leftPin2, 100);
-            break; // might have to just change to an if-else
+            analogWrite(leftPin2, 0);
+            // Right Wheel
+            analogWrite(rightPin1, 255);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 255);
+            delay(200);
+            // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 0);
+
+            directionLeft = true;
+            directionRight = false;
           }
-          // Right Wheel
-          analogWrite(rightPin1, 0);
-          analogWrite(rightPin2, 0);
-        
-          // Left Wheel
-          analogWrite(leftPin1, 0);
-          analogWrite(leftPin2, 0);
-          // Right Wheel
-          analogWrite(rightPin1, 255);
-          analogWrite(rightPin2, 0);
-        
-          // Left Wheel
-          analogWrite(leftPin1, 0);
-          analogWrite(leftPin2, 255);
-          delay(200);
-          // Right Wheel
-          analogWrite(rightPin1, 0);
-          analogWrite(rightPin2, 0);
-        
-          // Left Wheel
-          analogWrite(leftPin1, 0);
-          analogWrite(leftPin2, 0);
         }
       }
     }

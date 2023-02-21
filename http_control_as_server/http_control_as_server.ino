@@ -13,7 +13,6 @@
 // Do not include SPI for CC3200 LaunchPad
 #include <SPI.h>
 #endif
-
 #include <WiFi.h>
 #define BUFSIZE 512
 
@@ -22,38 +21,42 @@ char ssid[] = "NETGEAR63";
 // your network password
 char password[] = "littlecello367";
 
-WiFiClient node_red;
+WiFiServer server(80);
 
 void moveForward(int msDelay = 0, bool slowly = false);
 void moveBackward(int msDelay);
 
 void setup() {
-  //Initialize serial and wait for port to open:
-     Serial.begin(9600);
-
+  Serial.begin(115200);      // initialize serial communication
   // attempt to connect to Wifi network:
-    Serial.print("Attempting to connect to Network named: ");
+  Serial.print("Attempting to connect to Network named: ");
   // print the network name (SSID);
   Serial.println(ssid); 
   // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-    WiFi.begin(ssid, password);
-    while ( WiFi.status() != WL_CONNECTED) {
+  WiFi.begin(ssid, password);
+  while ( WiFi.status() != WL_CONNECTED) {
     // print dots while we wait to connect
-       Serial.print(".");
-       delay(300);
-     }
+    Serial.print(".");
+    delay(300);
+  }
   
   Serial.println("\nYou're connected to the network");
   Serial.println("Waiting for an ip address");
   
-     while (WiFi.localIP() == INADDR_NONE) {
+  while (WiFi.localIP() == INADDR_NONE) {
     // print dots while we wait for an ip addresss
-     Serial.print(".");
-     delay(300);
-     }
+    Serial.print(".");
+    delay(300);
+  }
 
   Serial.println("\nIP Address obtained");
+  
+  // you're connected now, so print out the status  
   printWifiStatus();
+
+  Serial.println("Starting webserver on port 80");
+  server.begin();                           // start the web server on port 80
+  Serial.println("Webserver started!");
 
   pinMode(rightPin1, OUTPUT);
   pinMode(rightPin2, OUTPUT);
@@ -63,136 +66,176 @@ void setup() {
 
   pinMode(statusLED, OUTPUT);
   digitalWrite(statusLED, HIGH);
-
 }
 
-char myLaptopIP[] = "192.168.1.150";
-int controlVal = 0;
-int direction = 0;
+byte controlVal = 1;
+bool moving = false;
+bool directionRight = false;
+bool directionLeft = false;
 
 void loop() {
-  while(controlVal == 0){
-    // read from node-red
-//    delay(1000);
-    if(node_red.connect(myLaptopIP, 1880)){
-      Serial.println("Connected to node-red");
-      node_red.println("GET /get-control HTTP/1.1");
-      node_red.println();
-      delay(1000);
-      if(node_red.available()){
-        Serial.println("getting res");
-        char buffer2[512];
-        memset(buffer2,0,512);
-        node_red.readBytes(buffer2,512);
-        String response(buffer2);
-//        Serial.println(response);
-        int split = response.indexOf("\r\n\r\n");
-        String body = response.substring(split+4, response.length());
-        body.trim();
-        controlVal = body.toInt();
-        Serial.println(controlVal);
+  
+  int i = 0;
+  WiFiClient client = server.available();   // listen for incoming clients
+
+  if (client) {                             // if you get a client,
+    char buffer[150] = {0};                 // make a buffer to hold incoming data
+    while (client.connected()) {            // loop while the client's connected
+//      if(controlVal == 0){return;}
+      if (client.available()) {             // if there's bytes to read from the client,
+        char c = client.read();             // read a byte, then
+        Serial.write(c);                    // print it out the serial monitor
+        if (c == '\n') {                    // if the byte is a newline character
+
+          // if the current line is blank, you got two newline characters in a row.
+          // that's the end of the client HTTP request, so send a response:
+          if (strlen(buffer) == 0) {
+            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+            // and a content-type so the client knows what's coming, then a blank line:
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println();
+
+            break;
+          }
+          else {      // if you got a newline, then clear the buffer:
+            memset(buffer, 0, 150);
+            i = 0;
+          }
+        }
+        else if (c != '\r') {    // if you got anything else but a carriage return character,
+          buffer[i++] = c;      // add it to the end of the currentLine
+        }
+        
+        if(endsWith(buffer, "GET /ctrl-rem")){
+          controlVal = 0;
+        }
+        else if (endsWith(buffer, "GET /stop")) {
+          // Right Wheel
+          analogWrite(rightPin1, 0);
+          analogWrite(rightPin2, 0);
+      
+          // Left Wheel
+          analogWrite(leftPin1, 0);
+          analogWrite(leftPin2, 0); 
+          moving = false;
+          directionRight = false;
+          directionLeft = false;
+        }
+        else if (endsWith(buffer, "GET /fwd")) {
+          moveForward(0, false);  
+          moving = true;
+          directionRight = false;
+          directionLeft = false;         
+        }
+        if(endsWith(buffer, "GET /back")){
+          moveBackward(0);
+          moving = true;
+          directionRight = false;
+          directionLeft = false;
+        }
+        else if(endsWith(buffer, "GET /r")){
+          
+          if(moving){
+            if(directionLeft){
+              // Left Wheel
+              analogWrite(leftPin1, 255);
+              analogWrite(leftPin2, 0);
+            }
+            // Right Wheel
+            analogWrite(rightPin1, 100);
+            analogWrite(rightPin2, 0);
+          }else{
+             // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 0);
+            // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 255);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 255);
+            analogWrite(leftPin2, 0);
+            delay(200);
+            // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 0);
+ 
+            directionLeft = false;
+            directionRight = true;
+          } 
+         
+        }
+        else if(endsWith(buffer, "GET /l")){
+          
+          if(moving){
+            if(directionRight){
+              // Right Wheel
+              analogWrite(rightPin1, 255);
+              analogWrite(rightPin2, 0);
+            }
+            // Left Wheel
+            analogWrite(leftPin1, 100);
+            analogWrite(leftPin2, 0);
+          }else{
+            // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 0);
+            // Right Wheel
+            analogWrite(rightPin1, 255);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 255);
+            delay(200);
+            // Right Wheel
+            analogWrite(rightPin1, 0);
+            analogWrite(rightPin2, 0);
+          
+            // Left Wheel
+            analogWrite(leftPin1, 0);
+            analogWrite(leftPin2, 0);
+
+            directionLeft = true;
+            directionRight = false;
+          }
+        }
       }
     }
-    node_red.stop();  
+    // close the connection:
+    client.stop();
+    Serial.println("client disonnected");
   }
-  while(controlVal == 1){
-    if(node_red.connect(myLaptopIP, 1880)){
-      node_red.println("GET /get-dir HTTP/1.1");
-      node_red.println();
-//      Serial.println("requested for direction");
-//      if(node_red.available()){
-//        Serial.println("getting dir");
-        char buffer2[512];
-        memset(buffer2,0,512);
-        node_red.readBytes(buffer2,512);
-        String response(buffer2);
-//        Serial.println(response);
-        int split = response.indexOf("\r\n\r\n");
-        String body = response.substring(split+4, response.length());
-        body.trim();
-        direction = body.toInt();
-//      }
-    node_red.stop();
-    }
+}
 
-    switch(direction){
-      case 0:
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        direction = 0;
-        break;
-      case 1:
-        moveForward(0, false);
-        direction = 0;
-        break;
-      case 2:
-        moveBackward(0);
-        direction = 0;
-        break;
-      case 3: // turn right
-      // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 255);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 255);
-        analogWrite(leftPin2, 0);
-        delay(200);
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        break;
-      case 4: // turn left
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        // Right Wheel
-        analogWrite(rightPin1, 255);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 255);
-        delay(200);
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        break;
-      default:
-        // Right Wheel
-        analogWrite(rightPin1, 0);
-        analogWrite(rightPin2, 0);
-      
-        // Left Wheel
-        analogWrite(leftPin1, 0);
-        analogWrite(leftPin2, 0);
-        break;
+//a way to check if one array ends with another array
+boolean endsWith(char* inString, const char* compString) {
+  int compLength = strlen(compString);
+  int strLength = strlen(inString);
+  
+  //compare the last "compLength" values of the inString
+  int i;
+  for (i = 0; i < compLength; i++) {
+    char a = inString[(strLength - 1) - i];
+    char b = compString[(compLength - 1) - i];
+    if (a != b) {
+      return false;
     }
-  }  
+  }
+  return true;
 }
 
 void printWifiStatus() {
@@ -200,7 +243,7 @@ void printWifiStatus() {
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
 
-  // print your WiFi shield's IP address:
+  // print your WiFi IP address:
   IPAddress ip = WiFi.localIP();
   Serial.print("IP Address: ");
   Serial.println(ip);
@@ -210,6 +253,9 @@ void printWifiStatus() {
   Serial.print("signal strength (RSSI):");
   Serial.print(rssi);
   Serial.println(" dBm");
+  // print where to go in a browser:
+  Serial.print("To see this page in action, open a browser to http://");
+  Serial.println(ip);
 }
 
 void moveForward(int msDelay, bool slowly){
@@ -232,7 +278,6 @@ void moveForward(int msDelay, bool slowly){
   analogWrite(leftPin2, 0);
  delay(msDelay);
 }
-
 void moveBackward(int msDelay){
 
   // Right Wheel
