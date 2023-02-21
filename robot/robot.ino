@@ -6,8 +6,8 @@
 
 #define distSens 12 // Distance sensor - 5.1
 
-#define RIGHT_WHEEL_SPEED_MAX 220
-#define LEFT_WHEEL_SPEED_MAX 255
+#define RIGHT_WHEEL_SPEED_MAX 255
+#define LEFT_WHEEL_SPEED_MAX 245
 
 #ifndef __CC3200R1M1RGC__
 // Do not include SPI for CC3200 LaunchPad
@@ -65,7 +65,7 @@ bool moveRobot = true;
 // Functions declarations
   // MOVEMENT
 void moveForward(int msDelay = 0, bool slowly = false);
-void moveBackward(int msDelay);
+void moveBackward(int msDelay = 0);
 void stopRobot();
 void moveRobotFromPos();
 
@@ -86,28 +86,28 @@ void setup() {
      Serial.begin(9600);
 
   // attempt to connect to Wifi network:
-    Serial.print("Attempting to connect to Network named: ");
-  // print the network name (SSID);
-  Serial.println(ssid); 
-  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-    WiFi.begin(ssid, password);
-    while ( WiFi.status() != WL_CONNECTED) {
-    // print dots while we wait to connect
-       Serial.print(".");
-       delay(300);
-     }
-  
-  Serial.println("\nYou're connected to the network");
-  Serial.println("Waiting for an ip address");
-  
-     while (WiFi.localIP() == INADDR_NONE) {
-    // print dots while we wait for an ip addresss
-     Serial.print(".");
-     delay(300);
-     }
-
-  Serial.println("\nIP Address obtained");
-  printWifiStatus();
+//    Serial.print("Attempting to connect to Network named: ");
+//  // print the network name (SSID);
+//  Serial.println(ssid); 
+//  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+//    WiFi.begin(ssid, password);
+//    while ( WiFi.status() != WL_CONNECTED) {
+//    // print dots while we wait to connect
+//       Serial.print(".");
+//       delay(300);
+//     }
+//  
+//  Serial.println("\nYou're connected to the network");
+//  Serial.println("Waiting for an ip address");
+//  
+//     while (WiFi.localIP() == INADDR_NONE) {
+//    // print dots while we wait for an ip addresss
+//     Serial.print(".");
+//     delay(300);
+//     }
+//
+//  Serial.println("\nIP Address obtained");
+//  printWifiStatus();
 
   pinMode(sensor1, INPUT);
   pinMode(sensor2, INPUT);
@@ -127,7 +127,13 @@ void setup() {
 }
 
 void loop() {
-  
+  while(true){
+    moveForward(5000, false);
+    stopRobot();
+    delay(1000);
+    moveBackward(5000);
+    delay(1000);
+  }
   sensorCombined = 0;
   
   sensorVals[0] = digitalRead(sensor1); //left left
@@ -282,7 +288,7 @@ void rotateRobotLeft(){
 void moveForward(int msDelay, bool slowly){
 //  Serial.println("Moving Forward");
   if(slowly){
-    analogWrite(rightPin1, 100);
+    analogWrite(rightPin1, 120);
     analogWrite(rightPin2, 0);
 
     // Left Wheel
@@ -301,7 +307,7 @@ void moveForward(int msDelay, bool slowly){
 }
 
 void moveBackward(int msDelay){
-  Serial.println("Moving Backward");
+//  Serial.println("Moving Backward");
 
   // Right Wheel
   analogWrite(rightPin1, 0);
@@ -310,6 +316,7 @@ void moveBackward(int msDelay){
   // Left Wheel
   analogWrite(leftPin1, 0);
   analogWrite(leftPin2, LEFT_WHEEL_SPEED_MAX);
+  delay(msDelay);
 }
 
 void stopRobot(){

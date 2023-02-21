@@ -54,14 +54,23 @@
       <button id="stop" class="btn btn-outline-danger my-2 mx-auto w-50">
         Stop
       </button>
+      <div className="container m-5">
+        You can also control using w, a, s, d, and space keys
+      </div>
       <!-- <button id="get-dir-test">Test</button> -->
     </div>
     <script>
-      // document.getElementById("get-dir-test").addEventListener("click", function () {
-      //   fetch("http://127.0.0.1:1880/get-dir", { method: "GET" })
-      //     .then((res) => res.json())
-      //     .then((data) => console.log(data));
-      // });
+      // let led = "L";
+      // document
+      //   .getElementById("get-dir-test")
+      //   .addEventListener("click", function () {
+      //     fetch("http://192.168.1.135:80/" + led, {
+      //       method: "GET",
+      //       mode: "no-cors",
+      //     });
+      //     if (led === "H") led = "L";
+      //     else if (led === "L") led = "H";
+      //   });
       let pos;
       let direction = null;
       let control = null;
@@ -107,6 +116,11 @@
         //     body: JSON.stringify({ control: 1 }),
         //   }
         // );
+        // fetch("http://192.168.1.135:80/get-ctrl", {
+        //   method: "GET",
+        //   mode: "no-cors",
+        // });
+
         fetch("http://127.0.0.1:1880/set-control", {
           method: "PUT",
           body: 1,
@@ -126,6 +140,16 @@
         //     body: JSON.stringify({ control: 0 }),
         //   }
         // );
+        // fetch("http://192.168.1.135:80/rem-ctrl", {
+        //   method: "GET",
+        //   mode: "no-cors",
+        // });
+
+        fetch("http://192.168.1.135:80/stop", {
+          method: "GET",
+          mode: "no-cors",
+        });
+
         fetch("http://127.0.0.1:1880/set-control", {
           method: "PUT",
           body: 0,
@@ -153,6 +177,12 @@
         //     body: JSON.stringify({ direction: 0 }),
         //   }
         // );
+
+        fetch("http://192.168.1.135:80/stop", {
+          method: "GET",
+          mode: "no-cors",
+        });
+
         fetch("http://127.0.0.1:1880/set-dir", {
           method: "PUT",
           body: 0,
@@ -173,6 +203,11 @@
         //     body: JSON.stringify({ direction: 1 }),
         //   }
         // );
+        fetch("http://192.168.1.135:80/fwd", {
+          method: "GET",
+          mode: "no-cors",
+        });
+
         fetch("http://127.0.0.1:1880/set-dir", {
           method: "PUT",
           body: 1,
@@ -193,6 +228,11 @@
         //     body: JSON.stringify({ direction: 2 }),
         //   }
         // );
+        fetch("http://192.168.1.135:80/back", {
+          method: "GET",
+          mode: "no-cors",
+        });
+
         fetch("http://127.0.0.1:1880/set-dir", {
           method: "PUT",
           body: 2,
@@ -214,6 +254,11 @@
         //     body: JSON.stringify({ direction: 3 }),
         //   }
         // );
+        fetch("http://192.168.1.135:80/r", {
+          method: "GET",
+          mode: "no-cors",
+        });
+
         fetch("http://127.0.0.1:1880/set-dir", {
           method: "PUT",
           body: 3,
@@ -235,6 +280,12 @@
         //     body: JSON.stringify({ direction: 4 }),
         //   }
         // );
+
+        fetch("http://192.168.1.135:80/l", {
+          method: "GET",
+          mode: "no-cors",
+        });
+
         fetch("http://127.0.0.1:1880/set-dir", {
           method: "PUT",
           body: 4,
@@ -271,9 +322,19 @@
         switch (controlVal) {
           case 0:
             document.getElementById("ctrl").innerHTML = "OFF";
+            document.getElementById("forward").disabled = true;
+            document.getElementById("backward").disabled = true;
+            document.getElementById("right").disabled = true;
+            document.getElementById("left").disabled = true;
+            document.getElementById("stop").disabled = true;
             break;
           case 1:
             document.getElementById("ctrl").innerHTML = "ON";
+            document.getElementById("forward").disabled = false;
+            document.getElementById("backward").disabled = false;
+            document.getElementById("right").disabled = false;
+            document.getElementById("left").disabled = false;
+            document.getElementById("stop").disabled = false;
             break;
         }
       }
@@ -296,6 +357,26 @@
 
       document.getElementById("right").addEventListener("click", right);
       document.getElementById("left").addEventListener("click", left);
+      document.addEventListener("keydown", (event) => {
+        // console.log(event.code);
+        switch (event.key) {
+          case "w":
+            directionForward();
+            break;
+          case "a":
+            left();
+            break;
+          case "s":
+            directionBackward();
+            break;
+          case "d":
+            right();
+            break;
+          case " ":
+            stopRobot();
+            break;
+        }
+      });
     </script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
