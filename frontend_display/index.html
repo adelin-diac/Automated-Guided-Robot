@@ -65,10 +65,7 @@
       let control = 0;
 
       window.addEventListener("load", function () {
-        // Change the delay to around 200ms later!!
         // setInterval(fetchPosition, 1000);
-        // setInterval(fetchData, 250);
-
         fetchData();
       });
       function fetchData() {
@@ -76,10 +73,8 @@
           .then((res) => res.json())
           .then((data) => {
             console.log(data);
-            direction = data.direction;
             control = data.control;
             setControlHTML(control);
-            setDirHTML(direction);
           });
       }
 
@@ -95,10 +90,11 @@
       }
       function takeControl() {
         control = 1;
-        // fetch("http://192.168.1.135:80/get-ctrl", {
-        //   method: "GET",
-        //   mode: "no-cors",
-        // });
+        setControlHTML(control);
+        fetch("http://192.168.1.135:80/get-ctrl", {
+          method: "GET",
+          mode: "no-cors",
+        });
 
         fetch("http://127.0.0.1:1880/set-control", {
           method: "PUT",
@@ -107,11 +103,11 @@
           .then((res) => res.json())
           .then((data) => {
             console.log("Control: " + data);
-            setControlHTML(data);
           });
       }
       function removeControl() {
         control = 0;
+        setControlHTML(control);
         fetch("http://192.168.1.135:80/stop", {
           method: "GET",
           mode: "no-cors",
@@ -129,7 +125,6 @@
           .then((res) => res.json())
           .then((data) => {
             console.log("Control: " + data);
-            setControlHTML(data);
           });
       }
 
@@ -147,16 +142,6 @@
           method: "GET",
           mode: "no-cors",
         });
-
-        fetch("http://127.0.0.1:1880/set-dir", {
-          method: "PUT",
-          body: 0,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("Direction: " + data);
-            setDirHTML(data);
-          });
       }
       function directionForward() {
         if (control === 0) return;
@@ -165,16 +150,6 @@
           method: "GET",
           mode: "no-cors",
         });
-
-        fetch("http://127.0.0.1:1880/set-dir", {
-          method: "PUT",
-          body: 1,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("Direction: " + data);
-            setDirHTML(data);
-          });
       }
       function directionBackward() {
         if (control === 0) return;
@@ -183,18 +158,7 @@
           method: "GET",
           mode: "no-cors",
         });
-
-        fetch("http://127.0.0.1:1880/set-dir", {
-          method: "PUT",
-          body: 2,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("Direction: " + data);
-            setDirHTML(data);
-          });
       }
-
       function right() {
         if (control === 0) return;
 
@@ -202,16 +166,6 @@
           method: "GET",
           mode: "no-cors",
         });
-
-        fetch("http://127.0.0.1:1880/set-dir", {
-          method: "PUT",
-          body: 3,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("Direction: " + data);
-            setDirHTML(data);
-          });
       }
       function left() {
         if (control === 0) return;
@@ -220,16 +174,6 @@
           method: "GET",
           mode: "no-cors",
         });
-
-        fetch("http://127.0.0.1:1880/set-dir", {
-          method: "PUT",
-          body: 4,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("Direction: " + data);
-            setDirHTML(data);
-          });
       }
 
       function setDirHTML(directionVal) {

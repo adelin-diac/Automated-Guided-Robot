@@ -47,6 +47,7 @@ char server[] = "54.78.246.30";
 // that you want to connect to (port 80 is default for HTTP):
 WiFiClient client;
 WiFiClient node_red;
+WiFiServer controlServer(80);
 
 int currentPosition = -1;
 int nextPosition = 0;
@@ -68,6 +69,8 @@ void moveForward(int msDelay = 0, bool slowly = false);
 void moveBackward(int msDelay = 0);
 void stopRobot();
 void moveRobotFromPos();
+void robotRotation(int motorLeft, int motorRight);
+void centerRobotOnLine();
 
 void turnAround();
 int distance();
@@ -129,7 +132,12 @@ void setup() {
 
   pinMode(distSens, INPUT);
   pinMode(statusLED, OUTPUT);
-  digitalWrite(statusLED, HIGH);
+  bool vals[] = {HIGH, LOW};
+  
+  for(int i = 0; i<11; i++){
+    digitalWrite(statusLED, vals[i % 2]); 
+    delay(100);
+  } 
 }
 
 void loop() {
@@ -245,12 +253,12 @@ void rotateRobotRight(){
 }
 void rotateRobotLeft(){
   // Right Wheel
-  analogWrite(rightPin1, 150);
+  analogWrite(rightPin1, 190);
   analogWrite(rightPin2, 0);
 
   // Left Wheel
   analogWrite(leftPin1, 0);
-  analogWrite(leftPin2, 150);
+  analogWrite(leftPin2, 190);
   bool keepTurning = true;
   delay(150);
 
@@ -361,7 +369,7 @@ void leaveLine(){
   
   while(true){
     Serial.println(distanceVal);
-    if(distanceVal < 3){
+    if(distanceVal < 4){
       stopRobot();
       
       Serial.println("Starting webserver on port 80");
@@ -468,6 +476,69 @@ void sendAndReceiveServerResponse(){
     }
     routing();
 }
+void centerRobotOnLine(){
+//  Serial.println("centering robot");
+    bool rotate = true;
+    while(rotate){
+      sensorCombined = 0;
+    
+      sensorVals[0] = digitalRead(sensor1); //left left
+      sensorVals[1] = digitalRead(sensor2); //left
+      sensorVals[2] = digitalRead(sensor3); //middle
+      sensorVals[3] = digitalRead(sensor4); //right
+      sensorVals[4] = digitalRead(sensor5); //right right
+  
+      for(int i=0; i<5; i++){
+       sensorCombined = sensorVals[i] << (4-i) | sensorCombined;
+      }
+//    Serial.println(sensorCombined);
+      switch(sensorCombined){
+        case 27: // 11011
+//          moveBackward(100);
+          robotRotation(0,0);
+          rotate = false;
+          break;
+        case 23: // 10111
+          robotRotation(0, 100);
+          break;
+        case 29: //11101
+          robotRotation(100, 0);
+          break;
+        case 15: //01111
+          robotRotation(0, 100);
+          break;
+        case 30: //11110
+          robotRotation(100, 0);
+          break;
+        case 7: //00111
+          robotRotation(0, 100);
+          break;
+        case 28: //11100
+          robotRotation(100, 0);
+          break;
+        default:
+           // Right Wheel
+          analogWrite(rightPin1, 60);
+          analogWrite(rightPin2, 0);
+          
+          // Left Wheel
+          analogWrite(leftPin1, 60);
+          analogWrite(leftPin2, 0);
+          break;
+      }
+    }
+}
+
+void robotRotation(int motorLeft, int motorRight){
+  if(motorLeft > 0 && motorRight > 0) return;
+  // Right Wheel
+  analogWrite(rightPin1, motorRight);
+  analogWrite(rightPin2, motorLeft);
+
+  // Left Wheel
+  analogWrite(leftPin1, motorLeft);
+  analogWrite(leftPin2, motorRight);
+}
 void moveRobotFromPos(){
   bool moveIt = true;
   while(moveIt){
@@ -547,16 +618,16 @@ void checkControlVal(){
     node_red.stop();
 }
 
-WiFiServer controlServer(80);
 bool moving = false;
 bool directionRight = false;
 bool directionLeft = false;
 
 void remoteControl(){
   checkControlVal();
-  Serial.println(controlVal);
+//  Serial.println(controlVal);
   
   while(controlVal == 1){
+//    centerRobotOnLine();
     int i = 0;
     WiFiClient clientConnected = controlServer.available();   // listen for incoming clients
 
@@ -754,8 +825,6 @@ void routing(){
           if(!facingEast){
             turnAround();
           }
-          moveRobotFromPos();
-          delay(150);
           moveRobotFromPos();
           delay(150);
           moveRobotFromPos();
@@ -972,6 +1041,9 @@ void routing(){
           rotateRobotLeft();
           moveRobotFromPos();
           delay(150);
+          moveRobotFromPos();
+          delay(150);
+          centerRobotOnLine();
           currentPosition = 5;
           leaveLine();
           break;
@@ -979,8 +1051,10 @@ void routing(){
           if(facingEast){
             turnAround();
           }
+          delay(150);
           moveRobotFromPos();
           delay(150);
+          centerRobotOnLine();
           currentPosition = 5;
           leaveLine();
           break;
@@ -993,6 +1067,9 @@ void routing(){
           rotateRobotRight();
           moveRobotFromPos();
           delay(150);
+          moveRobotFromPos();
+          delay(150);
+          centerRobotOnLine();
           currentPosition = 5;
           leaveLine();
           break;
@@ -1005,7 +1082,8 @@ void routing(){
           stopRobot();
           delay(150);
           rotateRobotRight();
-          delay(150);
+          delay(100);
+          centerRobotOnLine();
           currentPosition = 5;
           leaveLine();
         break;
@@ -1018,7 +1096,8 @@ void routing(){
           stopRobot();
           delay(150);
           rotateRobotLeft();
-          delay(150);
+          delay(100);
+          centerRobotOnLine();
           currentPosition = 5;
           leaveLine();
           break;
