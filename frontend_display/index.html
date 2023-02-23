@@ -60,6 +60,9 @@
       <!-- <button id="get-dir-test">Test</button> -->
     </div>
     <script>
+      const robotIP = "136.206.36.224";
+      // console.log("http://" + robotIP + ":80/fwd");
+      // const robotIP = "192.168.1.135";
       let pos;
       let direction = null;
       let control = 0;
@@ -91,7 +94,7 @@
       function takeControl() {
         control = 1;
         setControlHTML(control);
-        fetch("http://192.168.1.135:80/get-ctrl", {
+        fetch("http://" + robotIP + ":80/get-ctrl", {
           method: "GET",
           mode: "no-cors",
         });
@@ -108,11 +111,11 @@
       function removeControl() {
         control = 0;
         setControlHTML(control);
-        fetch("http://192.168.1.135:80/stop", {
+        fetch("http://" + robotIP + ":80/stop", {
           method: "GET",
           mode: "no-cors",
         }).then(() => {
-          fetch("http://192.168.1.135:80/ctrl-rem", {
+          fetch("http://" + robotIP + ":80/ctrl-rem", {
             method: "GET",
             mode: "no-cors",
           });
@@ -138,7 +141,7 @@
       function stopRobot() {
         if (control === 0) return;
 
-        fetch("http://192.168.1.135:80/stop", {
+        fetch("http://" + robotIP + ":80/stop", {
           method: "GET",
           mode: "no-cors",
         });
@@ -146,7 +149,7 @@
       function directionForward() {
         if (control === 0) return;
 
-        fetch("http://192.168.1.135:80/fwd", {
+        fetch("http://" + robotIP + ":80/fwd", {
           method: "GET",
           mode: "no-cors",
         });
@@ -154,7 +157,7 @@
       function directionBackward() {
         if (control === 0) return;
 
-        fetch("http://192.168.1.135:80/back", {
+        fetch("http://" + robotIP + ":80/back", {
           method: "GET",
           mode: "no-cors",
         });
@@ -162,7 +165,7 @@
       function right() {
         if (control === 0) return;
 
-        fetch("http://192.168.1.135:80/r", {
+        fetch("http://" + robotIP + ":80/r", {
           method: "GET",
           mode: "no-cors",
         });
@@ -170,7 +173,7 @@
       function left() {
         if (control === 0) return;
 
-        fetch("http://192.168.1.135:80/l", {
+        fetch("http://" + robotIP + ":80/l", {
           method: "GET",
           mode: "no-cors",
         });

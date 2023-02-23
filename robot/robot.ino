@@ -7,7 +7,7 @@
 #define distSens 12 // Distance sensor - 5.1
 
 #define RIGHT_WHEEL_SPEED_MAX 255
-#define LEFT_WHEEL_SPEED_MAX 255
+#define LEFT_WHEEL_SPEED_MAX 240
 
 #ifndef __CC3200R1M1RGC__
 // Do not include SPI for CC3200 LaunchPad
@@ -197,14 +197,14 @@ void loop() {
 
 void turnLeft(){
   analogWrite(leftPin1, 0);
-  analogWrite(leftPin2, 60);
+  analogWrite(leftPin2, 80);
   
   analogWrite(rightPin1, 255);
   analogWrite(rightPin2, 0);
 }
 void turnRight(){
   analogWrite(rightPin1, 0);
-  analogWrite(rightPin2, 60);
+  analogWrite(rightPin2, 80);
   
   analogWrite(leftPin1, 255);
   analogWrite(leftPin2, 0);
@@ -213,10 +213,10 @@ void turnRight(){
 void rotateRobotRight(){
   // Right Wheel
   analogWrite(rightPin1, 0);
-  analogWrite(rightPin2, 190);
+  analogWrite(rightPin2, 200);
 
   // Left Wheel
-  analogWrite(leftPin1, 190);
+  analogWrite(leftPin1, 200);
   analogWrite(leftPin2, 0);
   bool keepTurning = true;
   delay(170);
@@ -253,12 +253,12 @@ void rotateRobotRight(){
 }
 void rotateRobotLeft(){
   // Right Wheel
-  analogWrite(rightPin1, 190);
+  analogWrite(rightPin1, 200);
   analogWrite(rightPin2, 0);
 
   // Left Wheel
   analogWrite(leftPin1, 0);
-  analogWrite(leftPin2, 190);
+  analogWrite(leftPin2, 200);
   bool keepTurning = true;
   delay(150);
 
@@ -358,18 +358,25 @@ void turnAround(){
   delay(600);
 }
 int distance() {
-  float volts = analogRead(distSens) * 0.0048828125; // value from sensor * (5/1024)
-  int distance = 13 * pow(volts, -1);
+  float volts = 0;
+  for(int i = 0; i < 3; i++){
+   volts += analogRead(distSens) * 0.0048828125; // value from sensor * (5/1024)
+  }
+  int distance = 13 * pow(volts/3, -1);
   return distance;
-  
 }
 void leaveLine(){
   int distanceVal = distance();
   moveForward(0, false);
   
   while(true){
+//    if(distanceVal < 8){
+//      moveForward(0, true);
+//    }else{
+//      moveForward(0, false);
+//    }
     Serial.println(distanceVal);
-    if(distanceVal < 4){
+    if(distanceVal < 5){
       stopRobot();
       
       Serial.println("Starting webserver on port 80");
@@ -596,7 +603,8 @@ void moveRobotFromPos(){
   } 
 }
 
-char myLaptopIP[] = "192.168.1.150";
+//char myLaptopIP[] = "192.168.1.150";
+char myLaptopIP[] = "136.206.36.213";
 
 void checkControlVal(){
   if(node_red.connect(myLaptopIP, 1880)){
