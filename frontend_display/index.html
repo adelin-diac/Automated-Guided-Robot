@@ -61,6 +61,7 @@
     </div>
     <script>
       const robotIP = "136.206.36.224";
+      const laptopip = "136.206.36.213";
       // console.log("http://" + robotIP + ":80/fwd");
       // const robotIP = "192.168.1.135";
       let pos;
@@ -98,15 +99,18 @@
           method: "GET",
           mode: "no-cors",
         });
-
-        fetch("http://127.0.0.1:1880/set-control", {
+        fetch("http://" + laptopip + ":1880/set-control", {
           method: "PUT",
           body: 1,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("Control: " + data);
-          });
+        });
+        // fetch("http://127.0.0.1:1880/set-control", {
+        //   method: "PUT",
+        //   body: 1,
+        // })
+        //   .then((res) => res.json())
+        //   .then((data) => {
+        //     console.log("Control: " + data);
+        //   });
       }
       function removeControl() {
         control = 0;
@@ -121,7 +125,7 @@
           });
         });
 
-        fetch("http://127.0.0.1:1880/set-control", {
+        fetch("http://" + laptopip + "/set-control", {
           method: "PUT",
           body: 0,
         })
