@@ -36,7 +36,9 @@ The http_control_as_server directory contains the http_control_as_server.ino fil
 
 ## Robot
 
-The robot directory contains the robot.ino file, which has the main moving, control, and server functionality and is the final draft of the code used on race day.
+The robot directory contains the robot.ino file, which has the main moving, control, and server functionality and is the final draft of the code used on race day. The track along with the visible checkpoints is below. The tricky part about this track is that there are two positions which are not checkpoints, however there is an intersection of lines. Checkpoint 5 was always the final position where the robot had to park as close as possible to a wall using a distance IR sensor.
+
+![EE303 Path](https://raw.githubusercontent.com/adelin-diac/Automated-Guided-Robot/master/Path.svg)
 
 ## Node-RED Robot Server
 
