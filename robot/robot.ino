@@ -35,12 +35,12 @@
 #define statusLED 30 // 5.5 
 
 // your network name also called SSID
-char ssid[] = "NETGEAR63";
+char ssid[] = "wifissid";
 // your network password
-char password[] = "littlecello367";
+char password[] = "wifipassword";
 
-//IPAddress server("54.78.246.30");  
-char server[] = "54.78.246.30";    
+//IPAddress server("serverIP");  
+char server[] = "serverip";    
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server

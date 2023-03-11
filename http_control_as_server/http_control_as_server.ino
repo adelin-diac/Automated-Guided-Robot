@@ -17,9 +17,9 @@
 #define BUFSIZE 512
 
 // your network name also called SSID
-char ssid[] = "NETGEAR63";
+char ssid[] = "wifissid";
 // your network password
-char password[] = "littlecello367";
+char password[] = "wifipassword";
 
 WiFiServer server(80);
 
