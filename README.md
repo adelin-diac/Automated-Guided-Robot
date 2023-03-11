@@ -1,10 +1,10 @@
 # EE303 - Mobile Robotics Group Project
 
-This repository contains the code for the EE303 module group project which involves the development of an automatic robot that can follow a white line, make HTTP calls to a server to get the next checkpoint position and move there. Additionally, the team implemented an innovative feature where the microcontroller acts as a server after completing the automatic journey to be controlled from a front-end display website.
+This repository contains the code for the EE303 module group project which involves the development of an automatic robot that can follow a white line, make HTTP calls to a server to get the next checkpoint position and move there. Additionally, the team implemented an innovative feature where the microcontroller acts as a server after completing the automatic journey so it can be controlled from a front-end display website.
 
 ## Group Members
 
-- Adelin Diac (me)
+- Adelin Diac
 - Cian Foy
 - Thomas Carrigan
 - Sean Connaghan
@@ -46,7 +46,7 @@ The nodered_robot_server file was initially used to connect the device controlli
 
 ## Installation and Setup
 
-In order for the root to work, a couple of pre-requisits have to be filled in. Firstly, the SSID and password of the wifi need to be filled in so the robot can be connected to the internet. The server string is the server to which the HTTP calls would be made so that the next position on the track can be retrieved.
+In order for the robot to work, a couple of pre-requisits have to be filled in. Firstly, the SSID and password of the WiFi need to be filled in so the robot can be connected to the internet. The server string is the server to which the HTTP calls would be made so that the next position on the track can be retrieved.
 
 For the remote control, there is a "control" vairable which is stored in the node-red server mentioned above, however this can be removed if necessary. It is only there so that control can be taken off and robot can't be controlled using the buttons on the "Frontend Display". To control the robot, various HTTP GET requests are made from the "Frontend Display" to tell the robot which action to perform.
 
